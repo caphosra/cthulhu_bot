@@ -1,0 +1,21 @@
+{
+  "name": "cthulhu_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/capra314cabra/cthulhu_bot.git"
+  },
+  "author": "capra314cabra",
+  "bugs": {
+    "url": "https://github.com/capra314cabra/cthulhu_bot/issues"
+  },
+  "homepage": "https://github.com/capra314cabra/cthulhu_bot#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1"
+  }
+}
