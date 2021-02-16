@@ -1,4 +1,6 @@
-const Discord = require("discord.js");
+import * as Discord from "discord.js";
+import * as http from "http";
+
 const client = new Discord.Client();
 
 client.on("ready", () => {
@@ -6,6 +8,9 @@ client.on("ready", () => {
 });
 
 client.on("message", msg => {
+    if (msg.author.bot) {
+        return;
+    }
     if (msg.content === "ping") {
         msg.reply("pong");
     }
@@ -16,10 +21,11 @@ if(process.env.DISCORD_BOT_TOKEN == undefined) {
     process.exit(0);
 }
 
-client.login( process.env.DISCORD_BOT_TOKEN );
+client.login(process.env.DISCORD_BOT_TOKEN);
 
-const http = require('http');
-
+//
+// A logic to make this bot awake.
+//
 const server = http.createServer((req, res) => {
     res.writeHead(200);
     res.end('ok');
