@@ -17,3 +17,12 @@ if(process.env.DISCORD_BOT_TOKEN == undefined) {
 }
 
 client.login( process.env.DISCORD_BOT_TOKEN );
+
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('ok');
+});
+
+server.listen(3000);
