@@ -36,7 +36,10 @@ function roll_d100(msg: Discord.Message, args: string | undefined, comment: stri
     }
 
     if (comment) {
-        comment = `\`${comment}\``
+        comment = `\`${comment}\``;
+    }
+    else {
+        comment = "???";
     }
     msg.reply(`${comment} Result : ${result_message}`)
 }
