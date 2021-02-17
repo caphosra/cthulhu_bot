@@ -42,7 +42,7 @@ function roll_d100(msg: Discord.Message, args: string | undefined, comment: stri
     }
 
     if (comment) {
-        msg.reply(`\`${comment}\` Result: ${result_message}`);
+        msg.reply(`\"${comment}\" Result: ${result_message}`);
     }
     else {
         msg.reply(`Result: ${result_message}`);
@@ -61,12 +61,11 @@ function roll_dice(msg: Discord.Message, args: string | undefined, comment: stri
     try {
         const expr = new DiceExpression(args);
         let result = expr.roll();
-        let list: number[] = [].concat(...result.diceRaw);
 
-        let result_message = `:game_die: **${result.roll}** (${list.join(", ")})`;
+        let result_message = `:game_die: **${result.roll}** (${args} : ${[].concat(...result.diceRaw).join(", ")})`;
 
         if (comment) {
-            msg.reply(`\`${comment}\` Result: ${result_message}`);
+            msg.reply(`\"${comment}\" Result: ${result_message}`);
         }
         else {
             msg.reply(`Result: ${result_message}`);
@@ -85,17 +84,25 @@ function create_sheet(msg: Discord.Message, args: string | undefined, comment: s
     const expr_2d6_6 = new DiceExpression("2d6+6");
     const expr_3d6_3 = new DiceExpression("3d6+3");
 
-    let message = `Result:\n:dagger: STR **${expr_3d6.roll().roll}**`;
-    message += `\n:umbrella: CON **${expr_3d6.roll().roll}**`;
-    message += `\n:heart: POW **${expr_3d6.roll().roll}**`;
-    message += `\n:dash: DEX **${expr_3d6.roll().roll}**`;
-    message += `\n:star: APP **${expr_3d6.roll().roll}**`;
-    message += `\n:elephant: SIZ **${expr_2d6_6.roll().roll}**`;
-    message += `\n:bulb: INT **${expr_2d6_6.roll().roll}**`;
-    message += `\n:books: EDU **${expr_3d6_3.roll().roll}**`;
+    let result = expr_3d6.roll();
+    let message = `Result:\n:dagger: STR **${result.roll}** (3d6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_3d6.roll();
+    message += `\n:umbrella: CON **${result.roll}** (3d6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_3d6.roll();
+    message += `\n:heart: POW **${result.roll}** (3d6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_3d6.roll();
+    message += `\n:dash: DEX **${result.roll}** (3d6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_3d6.roll();
+    message += `\n:star: APP **${result.roll}** (3d6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_2d6_6.roll();
+    message += `\n:elephant: SIZ **${result.roll}** (2d6 + 6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_2d6_6.roll();
+    message += `\n:bulb: INT **${result.roll}** (2d6 + 6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    result = expr_3d6_3.roll();
+    message += `\n:books: EDU **${result.roll}** (3d6 + 3 : ${[].concat(...result.diceRaw).join(", ")})`;
 
     if (comment) {
-        msg.reply(`\`${comment}\` ${message}`);
+        msg.reply(`\"${comment}\" ${message}`);
     }
     else {
         msg.reply(message);
