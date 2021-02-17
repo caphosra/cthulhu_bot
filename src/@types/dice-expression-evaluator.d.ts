@@ -4,6 +4,6 @@
 declare module "dice-expression-evaluator" {
     export default class DiceExpression {
         constructor(expr: string);
-        roll(): { roll: int, diceSums: int[], diceRaw: any };
+        roll(): { roll: number, diceSums: number[], diceRaw: any };
     }
 }

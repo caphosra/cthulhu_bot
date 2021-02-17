@@ -19,29 +19,62 @@ function roll_d100(msg: Discord.Message, args: string | undefined, comment: stri
     let result = expr.roll().roll;
 
     let result_message = "";
-    if (result <= 5) {
-        result_message = `:crown: Critical! (${result})`
+    if (result == 1 && (number == -1 || result <= number)) {
+        result_message = `:star::crown::star: **Critical!!!** (${result})`;
     }
-    else if (result >= 95) {
-        result_message = `:skull: Fumble! (${result})`
+    else if (result == 100 && (number == -1 || result > number)) {
+        result_message = `:fire::skull::fire: **Fumble!!!** (${result})`;
+    }
+    else if (result <= 5 && (number == -1 || result <= number)) {
+        result_message = `:crown: **Critical!** (${result})`;
+    }
+    else if (result > 95  && (number == -1 || result > number)) {
+        result_message = `:skull: **Fumble!** (${result})`;
     }
     else if (number == -1) {
-        result_message = `:question: Can't judge. (${result})`
+        result_message = `:question: **Can't judge** (${result})`;
     }
     else if (result <= number) {
-        result_message = `:o: Success (${result} <= ${number})`
+        result_message = `:o: **Success** (${result} <= ${number})`;
     }
     else {
-        result_message = `:x: Failed (${result} > ${number})`
+        result_message = `:x: **Failed** (${result} > ${number})`;
     }
 
     if (comment) {
-        comment = `\`${comment}\``;
+        msg.reply(`\`${comment}\` Result: ${result_message}`);
     }
     else {
-        comment = "???";
+        msg.reply(`Result: ${result_message}`);
     }
-    msg.reply(`${comment} Result : ${result_message}`)
+}
+
+//
+// Roll dices which are not d100.
+//
+function roll_dice(msg: Discord.Message, args: string | undefined, comment: string | undefined) {
+    if (!args) {
+        msg.reply("You have to give me a correct expression.");
+        return;
+    }
+
+    try {
+        const expr = new DiceExpression(args);
+        let result = expr.roll();
+        let list: number[] = [].concat(...result.diceRaw);
+
+        let result_message = `:game_die: **${result.roll}** (${list.join(", ")})`;
+
+        if (comment) {
+            msg.reply(`\`${comment}\` Result: ${result_message}`);
+        }
+        else {
+            msg.reply(`Result: ${result_message}`);
+        }
+    }
+    catch {
+        msg.reply("You have to give me a correct expression.");
+    }
 }
 
 //
@@ -61,6 +94,10 @@ function calculate_args(msg: Discord.Message) {
 
     if (param_name == "r" || param_name == "roll") {
         roll_d100(msg, args, comment);
+    }
+
+    if (param_name == "cr" || param_name == "custom_roll") {
+        roll_dice(msg, args, comment);
     }
 }
 
