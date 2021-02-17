@@ -71,7 +71,7 @@ export function start_bot() {
     });
 
     client.on("message", msg => {
-        if (msg.author.bot || msg.content.length == 0 || msg.content[0] == "/") {
+        if (msg.author.bot || msg.content.length == 0 || msg.content[0] != "/") {
             return;
         }
 
