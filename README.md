@@ -1,5 +1,7 @@
 # Unofficial Cthulhu Bot
 
+[![License](https://img.shields.io/github/license/capra314cabra/cthulhu_bot)](https://github.com/capra314cabra/cthulhu_bot/blob/master/LICENSE)
+
 <p align="center">
     <img width="500" height="400" src="https://github.com/capra314cabra/cthulhu_bot/blob/master/img/icon.png">
 </p>
@@ -8,9 +10,9 @@ An unofficial Discord bot which helps you to play Cthulhu TRPG.
 
 Please note that **Chaosium Inc. owns the copyright** of Cthulhu TRPG,
 and this bot contains nothing related to data in the CoC book.
-Buy the CoC book before using this bot!
+Buy the CoC book first.
 
-Inspired by [Sidekick](https://github.com/ArtemGr/Sidekick), which is no longer available.
+[Invite this bot!](https://discord.com/api/oauth2/authorize?client_id=811123481370558505&permissions=256064&scope=bot)
 
 ## Examples
 
@@ -29,3 +31,7 @@ Inspired by [Sidekick](https://github.com/ArtemGr/Sidekick), which is no longer 
 |`/r [limit] #[Comment]`|Equal to `/roll`.|
 |`/custom_roll <expression> #[Comment]`|Evaluate the expression given. Use [dice-expression-evaluator](https://github.com/dbkang/dice-expression-evaluator) internally.|
 |`/cr <expression> #[Comment]`|Equal to `/custom_roll`.|
+
+## Memo
+
+Inspired by [Sidekick](https://github.com/ArtemGr/Sidekick), which is no longer available.
