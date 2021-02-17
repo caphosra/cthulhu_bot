@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/capra314cabra/cthulhu_bot#readme",
   "dependencies": {
+    "dice-expression-evaluator": "^0.1.2",
     "discord.js": "^12.5.1"
   },
   "devDependencies": {
