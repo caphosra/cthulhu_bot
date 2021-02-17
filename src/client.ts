@@ -4,12 +4,15 @@ import DiceExpression from "dice-expression-evaluator";
 //
 // Roll a d100 dice.
 //
-function roll_d100(msg: Discord.Message, args: string, comment: string) {
-    const number_regex = /\d+/;
-    const matched_number = args.match(number_regex);
+function roll_d100(msg: Discord.Message, args: string | undefined, comment: string | undefined) {
     let number = -1;
-    if (matched_number) {
-        number = parseInt(matched_number[0]);
+
+    if (args) {
+        const number_regex = /\d+/;
+        const matched_number = args.match(number_regex);
+        if (matched_number) {
+            number = parseInt(matched_number[0]);
+        }
     }
 
     const expr = new DiceExpression("d100");
@@ -32,7 +35,7 @@ function roll_d100(msg: Discord.Message, args: string, comment: string) {
         result_message = `:x: Failed (${result} > ${number})`
     }
 
-    if (comment != "") {
+    if (comment) {
         comment = `\`${comment}\``
     }
     msg.reply(`${comment} Result : ${result_message}`)
