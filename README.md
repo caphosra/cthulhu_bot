@@ -1,5 +1,6 @@
 # Unofficial Cthulhu Bot
 
+[![GitHub issues](https://img.shields.io/github/issues/capra314cabra/cthulhu_bot)](https://github.com/capra314cabra/cthulhu_bot/issues)
 [![License](https://img.shields.io/github/license/capra314cabra/cthulhu_bot)](https://github.com/capra314cabra/cthulhu_bot/blob/master/LICENSE)
 
 <p align="center">
