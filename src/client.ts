@@ -62,6 +62,8 @@ function roll_dice(msg: Discord.Message, args: string | undefined, comment: stri
         const expr = new DiceExpression(args);
         let result = expr.roll();
 
+        args = args.replace(/\s/g, "");
+
         let result_message = `:game_die: **${result.roll}** (${args} : ${[].concat(...result.diceRaw).join(", ")})`;
 
         if (comment) {
@@ -95,11 +97,11 @@ function create_sheet(msg: Discord.Message, args: string | undefined, comment: s
     result = expr_3d6.roll();
     message += `\n:star: APP **${result.roll}** (3d6 : ${[].concat(...result.diceRaw).join(", ")})`;
     result = expr_2d6_6.roll();
-    message += `\n:elephant: SIZ **${result.roll}** (2d6 + 6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    message += `\n:elephant: SIZ **${result.roll}** (2d6+6 : ${[].concat(...result.diceRaw).join(", ")})`;
     result = expr_2d6_6.roll();
-    message += `\n:bulb: INT **${result.roll}** (2d6 + 6 : ${[].concat(...result.diceRaw).join(", ")})`;
+    message += `\n:bulb: INT **${result.roll}** (2d6+6 : ${[].concat(...result.diceRaw).join(", ")})`;
     result = expr_3d6_3.roll();
-    message += `\n:books: EDU **${result.roll}** (3d6 + 3 : ${[].concat(...result.diceRaw).join(", ")})`;
+    message += `\n:books: EDU **${result.roll}** (3d6+3 : ${[].concat(...result.diceRaw).join(", ")})`;
 
     if (comment) {
         msg.reply(`\"${comment}\" ${message}`);
