@@ -19,6 +19,8 @@ Buy the CoC book first.
 
 <p align="center">
     <img width="462" height="120" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example1.png">
+    <img width="462" height="120" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example2.png">
+    <img width="462" height="120" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example3.png">
 </p>
 
 ## Commands available
