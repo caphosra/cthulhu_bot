@@ -78,6 +78,31 @@ function roll_dice(msg: Discord.Message, args: string | undefined, comment: stri
 }
 
 //
+// Create a character sheet.
+//
+function create_sheet(msg: Discord.Message, args: string | undefined, comment: string | undefined) {
+    const expr_3d6 = new DiceExpression("3d6");
+    const expr_2d6_6 = new DiceExpression("2d6+6");
+    const expr_3d6_3 = new DiceExpression("3d6+3");
+
+    let message = `Result:\n:dagger: STR **${expr_3d6.roll().roll}**`;
+    message += `\n:umbrella: CON **${expr_3d6.roll().roll}**`;
+    message += `\n:heart: POW **${expr_3d6.roll().roll}**`;
+    message += `\n:dash: DEX **${expr_3d6.roll().roll}**`;
+    message += `\n:star: APP **${expr_3d6.roll().roll}**`;
+    message += `\n:elephant: SIZ **${expr_2d6_6.roll().roll}**`;
+    message += `\n:bulb: INT **${expr_2d6_6.roll().roll}**`;
+    message += `\n:books: EDU **${expr_3d6_3.roll().roll}**`;
+
+    if (comment) {
+        msg.reply(`\`${comment}\` ${message}`);
+    }
+    else {
+        msg.reply(message);
+    }
+}
+
+//
 // Process the args.
 //
 function calculate_args(msg: Discord.Message) {
@@ -98,6 +123,10 @@ function calculate_args(msg: Discord.Message) {
 
     if (param_name == "cr" || param_name == "custom_roll") {
         roll_dice(msg, args, comment);
+    }
+
+    if (param_name == "cs" || param_name == "create_sheet") {
+        create_sheet(msg, args, comment);
     }
 }
 

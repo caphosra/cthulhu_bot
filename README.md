@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/github/license/capra314cabra/cthulhu_bot)](https://github.com/capra314cabra/cthulhu_bot/blob/master/LICENSE)
 
 <p align="center">
-    <img width="500" height="400" src="https://github.com/capra314cabra/cthulhu_bot/blob/master/img/icon.png">
+    <img width="500" height="400" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/icon.png">
 </p>
 
 An unofficial Discord bot which helps you to play Cthulhu TRPG.
@@ -18,7 +18,7 @@ Buy the CoC book first.
 ## Examples
 
 <p align="center">
-    <img width="462" height="120" src="https://github.com/capra314cabra/cthulhu_bot/blob/master/img/example1.png">
+    <img width="462" height="120" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example1.png">
 </p>
 
 ## Commands available
@@ -32,6 +32,8 @@ Buy the CoC book first.
 |`/r [limit] #[Comment]`|Equal to `/roll`.|
 |`/custom_roll <expression> #[Comment]`|Evaluate the expression given. Use [dice-expression-evaluator](https://github.com/dbkang/dice-expression-evaluator) internally.|
 |`/cr <expression> #[Comment]`|Equal to `/custom_roll`.|
+|`/create_sheet #[Comment]`|Create a character sheet by rolling dices.|
+|`/cs #[Comment]`|Equal to `/create_sheet`.|
 
 ## Memo
 
