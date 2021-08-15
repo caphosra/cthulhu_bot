@@ -60,7 +60,7 @@ function roll_dice(msg: Discord.Message, args: string | undefined, comment: stri
 
     args = args.replace(/\s/g, "");
 
-    const regex = /^(.+)(\<\=|\=\<|\>\=|\=\>|\>|\<|\=)(.+)$/g;
+    const regex = /^(.+?)(\<\=|\=\<|\>\=|\=\>|\>|\<|\=)(.+)$/g;
     const matches = args.match(regex);
 
     if (matches) {
