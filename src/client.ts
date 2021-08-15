@@ -28,7 +28,7 @@ function roll_d100(msg: Discord.Message, args: string | undefined, comment: stri
     else if (result <= 5 && (number == -1 || result <= number)) {
         result_message = `:crown: **Critical!** (${result})`;
     }
-    else if (result > 95  && (number == -1 || result > number)) {
+    else if (result > 95 && (number == -1 || result > number)) {
         result_message = `:skull: **Fumble!** (${result})`;
     }
     else if (number == -1) {
@@ -58,23 +58,73 @@ function roll_dice(msg: Discord.Message, args: string | undefined, comment: stri
         return;
     }
 
-    try {
-        const expr = new DiceExpression(args);
-        let result = expr.roll();
+    args = args.replace(/\s/g, "");
 
-        args = args.replace(/\s/g, "");
+    const regex = /^(.+)(\<\=|\=\<|\>\=|\=\>|\>|\<|\=)(.+)$/g;
+    const matches = args.match(regex);
 
-        let result_message = `:game_die: **${result.roll}** (${args} : ${[].concat(...result.diceRaw).join(", ")})`;
+    if (matches) {
+        const expr1 = matches[1];
+        const arrow = matches[2];
+        const expr2 = matches[3];
 
-        if (comment) {
-            msg.reply(`\"${comment}\" Result: ${result_message}`);
+        try {
+            const result1 = new DiceExpression(expr1).roll();
+            const result2 = new DiceExpression(expr2).roll();
+
+            const arg = `(${expr1} : ${[].concat(...result1.diceRaw).join(", ")} ${arrow} ${expr2} : ${[].concat(...result2.diceRaw).join(", ")})`;
+            let result_message = "";
+
+            switch (arrow) {
+                case "<=":
+                case "=<":
+                    result_message = `${result1.roll <= result2.roll ? ":o: **Success**" : ":x: **Failed**"} ${arg}`;
+                    break;
+                case "<":
+                    result_message = `${result1.roll < result2.roll ? ":o: **Success**" : ":x: **Failed**"} ${arg}`;
+                    break;
+                case ">=":
+                case "=>":
+                    result_message = `${result1.roll >= result2.roll ? ":o: **Success**" : ":x: **Failed**"} ${arg}`;
+                    break;
+                case ">":
+                    result_message = `${result1.roll > result2.roll ? ":o: **Success**" : ":x: **Failed**"} ${arg}`;
+                    break;
+                case "=":
+                    result_message = `${result1.roll == result2.roll ? ":o: **Success**" : ":x: **Failed**"} ${arg}`;
+                    break;
+                default:
+                    throw "";
+            }
+
+            if (comment) {
+                msg.reply(`\"${comment}\" Result: ${result_message}`);
+            }
+            else {
+                msg.reply(`Result: ${result_message}`);
+            }
         }
-        else {
-            msg.reply(`Result: ${result_message}`);
+        catch {
+            msg.reply("You have to give me a correct expression.");
         }
     }
-    catch {
-        msg.reply("You have to give me a correct expression.");
+    else {
+        try {
+            const expr = new DiceExpression(args);
+            let result = expr.roll();
+
+            let result_message = `:game_die: **${result.roll}** (${args} : ${[].concat(...result.diceRaw).join(", ")})`;
+
+            if (comment) {
+                msg.reply(`\"${comment}\" Result: ${result_message}`);
+            }
+            else {
+                msg.reply(`Result: ${result_message}`);
+            }
+        }
+        catch {
+            msg.reply("You have to give me a correct expression.");
+        }
     }
 }
 
@@ -159,7 +209,7 @@ export function start_bot() {
         calculate_args(msg);
     });
 
-    if(process.env.DISCORD_BOT_TOKEN == undefined) {
+    if (process.env.DISCORD_BOT_TOKEN == undefined) {
         console.log("please set ENV: DISCORD_BOT_TOKEN");
         process.exit(0);
     }
