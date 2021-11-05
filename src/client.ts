@@ -193,7 +193,7 @@ function calculate_args(msg: Discord.Message) {
 // Start the bot.
 //
 export function start_bot() {
-    const client = new Discord.Client();
+    const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
 
     client.on("ready", () => {
         if (client.user) {
@@ -201,7 +201,7 @@ export function start_bot() {
         }
     });
 
-    client.on("message", msg => {
+    client.on("messageCreate", msg => {
         if (msg.author.bot || msg.content.length == 0 || msg.content[0] != "/") {
             return;
         }
