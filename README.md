@@ -13,7 +13,7 @@ Please note that **Chaosium Inc. owns the copyright** of Cthulhu TRPG,
 and this bot contains nothing related to data in the CoC book.
 Buy the CoC book first.
 
-[Invite this bot!](https://discord.com/api/oauth2/authorize?client_id=811123481370558505&permissions=256064&scope=bot)
+[Invite this bot!](https://discord.com/api/oauth2/authorize?client_id=811123481370558505&permissions=380104853568&scope=applications.commands%20bot)
 
 ## Examples
 
