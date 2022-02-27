@@ -9,19 +9,9 @@
 
 An unofficial Discord bot which helps you to play Cthulhu TRPG.
 
-Please note that **Chaosium Inc. owns the copyright** of Cthulhu TRPG,
-and this bot contains nothing related to data in the CoC book.
-Buy the CoC book first.
+**Please note that Chaosium Inc. owns the copyright of Cthulhu TRPG.**
 
 [Invite this bot!](https://discord.com/api/oauth2/authorize?client_id=811123481370558505&permissions=380104853568&scope=applications.commands%20bot)
-
-## Examples
-
-<p align="center">
-    <img width="464" height="126" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example1.png">
-    <img width="438" height="134" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example2.png">
-    <img width="354" height="308" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/example3.png">
-</p>
 
 ## Commands available
 
