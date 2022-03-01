@@ -16,7 +16,7 @@ pub struct CommandInfo<'ctx> {
 /// Tries to parse a command line.
 pub fn parse_command<'ctx>(content: &'ctx str) -> Option<CommandInfo<'ctx>> {
     // Check the first character in order to avoid using regex again and again.
-    if &content[..1] != "/" {
+    if content.len() == 0 || &content[..1] != "/" {
         None
     }
     else {
