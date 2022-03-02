@@ -16,6 +16,8 @@ use crate::command_parser::*;
 use crate::commands::create_sheet::*;
 use crate::commands::custom_roll::*;
 use crate::commands::roll6::*;
+use crate::commands::set::*;
+use crate::commands::status::*;
 use crate::commands::*;
 use crate::user_data::UserInfo;
 
@@ -25,6 +27,8 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
         Box::new(CreateSheetCommand),
         Box::new(CustomRollCommand),
         Box::new(Roll6Command),
+        Box::new(SetCommand),
+        Box::new(StatusCommand),
     ]
 });
 

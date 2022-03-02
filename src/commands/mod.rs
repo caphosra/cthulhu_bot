@@ -40,3 +40,5 @@ fn roll_to_string(roll: &Roll) -> String {
 pub mod create_sheet;
 pub mod custom_roll;
 pub mod roll6;
+pub mod set;
+pub mod status;
