@@ -1,8 +1,10 @@
 [package]
-name = "coc-bot"
-version = "0.1.0"
+name = "cthulhu_bot"
+version = "2.0.0"
 authors = ["Akihisa Yagi <capra314cabra@gmail.com>"]
 edition = "2018"
+description = "An unofficial Discord bot which helps you to play Cthulhu TRPG. Please note that Chaosium Inc. owns the copyright of Cthulhu TRPG."
+repository = "https://github.com/capra314cabra/cthulhu_bot"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
