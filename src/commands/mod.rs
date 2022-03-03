@@ -4,6 +4,7 @@ use d20::Roll;
 use once_cell::sync::Lazy;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
+use serenity::utils::Color;
 
 use crate::command_parser::*;
 use crate::commands::create_sheet::*;
@@ -44,6 +45,24 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
     ]
 });
 
+async fn reply_error(ctx: &Context, msg: &Message, error: &str) {
+    let _ = msg
+        .channel_id
+        .send_message(&ctx, |m| {
+            m.embed(|e| {
+                e.title("ERROR");
+                e.field("Message", error, false);
+                e.color(Color::RED);
+
+                e
+            });
+            m.reference_message(msg);
+
+            m
+        })
+        .await;
+}
+
 pub async fn run_command<'ctx>(
     ctx: &Context,
     msg: &Message,
@@ -56,7 +75,7 @@ pub async fn run_command<'ctx>(
             let result = command.execute(ctx, msg, info, data).await;
 
             if let Err(message) = result {
-                let _ = msg.reply(&ctx, message).await;
+                reply_error(ctx, msg, message).await;
             };
             return;
         }
