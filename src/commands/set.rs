@@ -25,7 +25,11 @@ impl SetCommand {
             .send_message(&ctx, |m| {
                 m.embed(|e| {
                     e.title(format!("{}'s status", msg.author.name));
-                    e.field(title, format!("{} **{} -> {}**", emoji, previous, new), true);
+                    e.field(
+                        title,
+                        format!("{} **{} -> {}**", emoji, previous, new),
+                        true,
+                    );
                     e.color(Color::PURPLE);
 
                     e
@@ -42,6 +46,10 @@ impl SetCommand {
 
 #[serenity::async_trait]
 impl BotCommand for SetCommand {
+    fn is_able_to_recurse(&self) -> bool {
+        false
+    }
+
     fn is_valid(&self, info: &CommandInfo) -> bool {
         info.command == "set" || info.command == "s"
     }
@@ -100,6 +108,7 @@ impl BotCommand for SetCommand {
         } else {
             let user_info = UserInfo::new(msg.author.id.0);
             solid_data.insert(msg.author.id.0, user_info);
+            drop(solid_data);
 
             self.execute(ctx, msg, info, data).await
         }

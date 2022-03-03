@@ -11,6 +11,10 @@ pub struct Roll6Command;
 
 #[serenity::async_trait]
 impl BotCommand for Roll6Command {
+    fn is_able_to_recurse(&self) -> bool {
+        true
+    }
+
     fn is_valid(&self, info: &CommandInfo) -> bool {
         info.command == "roll"
             || info.command == "roll6"

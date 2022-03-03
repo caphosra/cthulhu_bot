@@ -43,6 +43,10 @@ impl StatusCommand {
 
 #[serenity::async_trait]
 impl BotCommand for StatusCommand {
+    fn is_able_to_recurse(&self) -> bool {
+        true
+    }
+
     fn is_valid(&self, info: &CommandInfo) -> bool {
         info.command == "status" || info.command == "st"
     }

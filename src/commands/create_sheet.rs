@@ -11,6 +11,10 @@ pub struct CreateSheetCommand;
 
 #[serenity::async_trait]
 impl BotCommand for CreateSheetCommand {
+    fn is_able_to_recurse(&self) -> bool {
+        true
+    }
+
     fn is_valid(&self, info: &CommandInfo) -> bool {
         info.command == "create_sheet" || info.command == "cs"
     }

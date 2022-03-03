@@ -11,6 +11,10 @@ pub struct CustomRollCommand;
 
 #[serenity::async_trait]
 impl BotCommand for CustomRollCommand {
+    fn is_able_to_recurse(&self) -> bool {
+        true
+    }
+
     fn is_valid(&self, info: &CommandInfo) -> bool {
         info.command == "custom_roll" || info.command == "cr"
     }

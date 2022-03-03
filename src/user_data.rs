@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::io::Cursor;
+use std::io::{BufRead, Cursor};
 
 use tokio::io::AsyncReadExt;
 
@@ -8,7 +8,7 @@ pub struct UserInfo {
     pub hp: u8,
     pub san: u8,
     pub mp: u8,
-    pub commands: [[u8; 20]; 10],
+    pub commands: HashMap<String, String>,
 }
 
 impl UserInfo {
@@ -18,7 +18,7 @@ impl UserInfo {
             hp: 0,
             san: 0,
             mp: 0,
-            commands: [[0u8; 20]; 10],
+            commands: HashMap::new(),
         }
     }
 
@@ -28,9 +28,17 @@ impl UserInfo {
         let san = cursor.read_u8().await?;
         let mp = cursor.read_u8().await?;
 
-        let mut commands = [[0u8; 20]; 10];
-        for i in 0..10 {
-            cursor.read_exact(&mut commands[i]).await?;
+        let mut commands: HashMap<String, String> = HashMap::new();
+        let length = cursor.read_u8().await?;
+        for _ in 0..length {
+            let mut buffer = vec![];
+            let length = cursor.read_until(b'\x03', &mut buffer)?;
+            let command_name = String::from_utf8(buffer[..(length - 1)].to_vec()).unwrap();
+
+            let mut buffer = vec![];
+            let length = cursor.read_until(b'\x03', &mut buffer)?;
+            let command_content = String::from_utf8(buffer[..(length - 1)].to_vec()).unwrap();
+            commands.insert(command_name, command_content);
         }
 
         Ok(Self {
@@ -48,8 +56,12 @@ impl UserInfo {
         result.push(self.hp);
         result.push(self.san);
         result.push(self.mp);
-        for i in 0..10 {
-            result.append(&mut self.commands[i].into());
+        result.push(self.commands.len() as u8);
+        for (key, value) in &self.commands {
+            result.append(&mut key.as_bytes().to_vec());
+            result.push(b'\x03');
+            result.append(&mut value.as_bytes().to_vec());
+            result.push(b'\x03');
         }
 
         result
@@ -105,11 +117,14 @@ mod test {
         let hp = 10;
         let san = 11;
         let mp = 12;
+        let mut commands: HashMap<String, String> = HashMap::new();
+        commands.insert("SpotHidden".to_string(), "/r 50".to_string());
 
         let mut info = UserInfo::new(user_id);
         info.hp = hp;
         info.san = san;
         info.mp = mp;
+        info.commands = commands;
 
         let mut data: HashMap<u64, UserInfo> = HashMap::new();
         data.insert(user_id, info);
@@ -122,5 +137,13 @@ mod test {
         assert_eq!(data.get(&user_id).unwrap().hp, hp);
         assert_eq!(data.get(&user_id).unwrap().san, san);
         assert_eq!(data.get(&user_id).unwrap().mp, mp);
+        assert_eq!(
+            data.get(&user_id)
+                .unwrap()
+                .commands
+                .get("SpotHidden")
+                .unwrap(),
+            "/r 50"
+        );
     }
 }

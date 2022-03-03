@@ -13,24 +13,8 @@ pub mod commands;
 pub mod user_data;
 
 use crate::command_parser::*;
-use crate::commands::create_sheet::*;
-use crate::commands::custom_roll::*;
-use crate::commands::roll6::*;
-use crate::commands::set::*;
-use crate::commands::status::*;
 use crate::commands::*;
 use crate::user_data::UserInfo;
-
-/// The commands which can be invoked through the bot.
-static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy::new(|| {
-    vec![
-        Box::new(CreateSheetCommand),
-        Box::new(CustomRollCommand),
-        Box::new(Roll6Command),
-        Box::new(SetCommand),
-        Box::new(StatusCommand),
-    ]
-});
 
 /// The user data.
 static USER_DATA: Lazy<Mutex<HashMap<u64, UserInfo>>> = Lazy::new(|| Mutex::new(HashMap::new()));
@@ -56,16 +40,7 @@ impl EventHandler for Handler {
         let info = parse_command(&msg.content);
 
         if let Some(info) = info {
-            for command in REGISTERED_COMMANDS.iter() {
-                if command.is_valid(&info) {
-                    let result = command.execute(&ctx, &msg, &info, &USER_DATA).await;
-
-                    if let Err(message) = result {
-                        let _ = msg.reply(&ctx, message).await;
-                    };
-                    return;
-                }
-            }
+            run_command(&ctx, &msg, &info, &USER_DATA, false).await;
         }
     }
 }
