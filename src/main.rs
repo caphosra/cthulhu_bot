@@ -49,15 +49,10 @@ impl EventHandler for Handler {
 async fn main() {
     // Load the environmental variables.
     let token = env::var("DISCORD_TOKEN").expect("Cannot gain a DISCORD_TOKEN.");
-    let application_id = env::var("APPLICATION_ID")
-        .expect("Cannot gain an APPLICATION_ID.")
-        .parse()
-        .expect("Invalid APPLICATION_ID.");
 
     // Build a client.
     let mut client = Client::builder(&token)
         .event_handler(Handler)
-        .application_id(application_id)
         .await
         .expect("Cannot setup a client.");
 
