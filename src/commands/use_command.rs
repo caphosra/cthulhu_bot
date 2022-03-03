@@ -78,18 +78,14 @@ impl BotCommand for UseCommand {
             let solid_data = data.lock().await;
             if let Some(user_info) = solid_data.get(&msg.author.id.0) {
                 if user_info.commands.len() == 0 {
-                    let _ = msg.reply_ping(&ctx, "There are no commands.")
-                        .await;
+                    let _ = msg.reply_ping(&ctx, "There are no commands.").await;
 
                     Ok(())
-                }
-                else {
-                    self.send_commands_list(ctx, msg, &user_info.commands)
-                    .await
+                } else {
+                    self.send_commands_list(ctx, msg, &user_info.commands).await
                 }
             } else {
-                let _ = msg.reply_ping(&ctx, "There are no commands.")
-                    .await;
+                let _ = msg.reply_ping(&ctx, "There are no commands.").await;
 
                 Ok(())
             }
