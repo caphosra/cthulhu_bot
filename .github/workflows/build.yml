@@ -1,0 +1,39 @@
+on:
+  push:
+    branches:
+      - master
+
+name: Build
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            file: cthulhu_bot
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            file: cthulhu_bot.exe
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install musl-tools
+        if : matrix.os == ubuntu-latest
+        run: sudo apt install -y musl-tools
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build --release --target=${{ matrix.target }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cthulhu-bot-${{ matrix.os }}
+          path: ./target/${{ matrix.target }}/release/${{ matrix.file }}
