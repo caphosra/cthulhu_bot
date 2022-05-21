@@ -23,7 +23,7 @@ static USER_DATA: Lazy<Mutex<HashMap<u64, UserInfo>>> = Lazy::new(|| Mutex::new(
 static DATA_FILE_PATH: &str = "./user_info.coc";
 
 /// The interval of saving the user data.
-static SAVE_USER_DATA_INTERVAL: time::Duration = time::Duration::from_secs(60 * 5);
+static SAVE_USER_DATA_INTERVAL: time::Duration = time::Duration::from_secs(60 * 60 * 6);
 
 /// An event handler for the bot.
 struct Handler;
