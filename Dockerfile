@@ -6,6 +6,6 @@ COPY . /app
 
 RUN cd /app \
     && cargo build --release \
-    && cp /app/target/release/ctulhu_bot /app
+    && cp /app/target/release/cthulhu_bot /app
 
-CMD ./ctulhu_bot
+CMD ./cthulhu_bot
