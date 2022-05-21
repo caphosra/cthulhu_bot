@@ -4,4 +4,8 @@ WORKDIR /app
 
 COPY . /app
 
-CMD cargo run --release
+RUN cd /app \
+    && cargo build --release \
+    && cp /app/target/release/ctulhu_bot /app
+
+CMD ./ctulhu_bot
