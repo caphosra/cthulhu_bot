@@ -1,11 +1,8 @@
-use std::collections::HashMap;
-
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::command_parser::*;
 use crate::commands::*;
-use crate::user_data::UserInfo;
 
 pub struct CustomRollCommand;
 
@@ -24,7 +21,7 @@ impl BotCommand for CustomRollCommand {
         ctx: &Context,
         msg: &Message,
         info: &CommandInfo,
-        _data: &Mutex<HashMap<u64, UserInfo>>,
+        _data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str> {
         let expr = info.args.ok_or("You should provide at least one.")?;
         let result =

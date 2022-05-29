@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use d20::Roll;
 use once_cell::sync::Lazy;
 use serenity::model::prelude::*;
@@ -9,13 +7,10 @@ use serenity::utils::Color;
 use crate::command_parser::*;
 use crate::commands::create_sheet::*;
 use crate::commands::custom_roll::*;
-use crate::commands::define::DefineCommand;
 use crate::commands::roll6::*;
 use crate::commands::set::*;
 use crate::commands::status::*;
-use crate::commands::undefine::*;
-use crate::commands::use_command::*;
-use crate::user_data::UserInfo;
+use crate::database::SizedBotDatabase;
 
 /// Represents a bot command.
 #[serenity::async_trait]
@@ -27,7 +22,7 @@ pub trait BotCommand {
         ctx: &Context,
         msg: &Message,
         info: &CommandInfo,
-        data: &Mutex<HashMap<u64, UserInfo>>,
+        data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str>;
 }
 
@@ -36,12 +31,9 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
     vec![
         Box::new(CreateSheetCommand),
         Box::new(CustomRollCommand),
-        Box::new(DefineCommand),
         Box::new(Roll6Command),
         Box::new(SetCommand),
         Box::new(StatusCommand),
-        Box::new(UndefineCommand),
-        Box::new(UseCommand),
     ]
 });
 
@@ -67,7 +59,7 @@ pub async fn run_command<'ctx>(
     ctx: &Context,
     msg: &Message,
     info: &CommandInfo<'ctx>,
-    data: &Mutex<HashMap<u64, UserInfo>>,
+    data: &Mutex<SizedBotDatabase>,
     recursive: bool,
 ) {
     for command in REGISTERED_COMMANDS.iter() {
@@ -101,9 +93,6 @@ fn roll_to_string(roll: &Roll) -> String {
 
 pub mod create_sheet;
 pub mod custom_roll;
-pub mod define;
 pub mod roll6;
 pub mod set;
 pub mod status;
-pub mod undefine;
-pub mod use_command;
