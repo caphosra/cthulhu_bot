@@ -8,6 +8,7 @@ RUN cd /app \
     && apt update \
     && apt upgrade -y \
     && apt install pkg-config libssl-dev -y \
+    && export PKG_CONFIG_ALLOW_CROSS=1 \
     && cargo build --release \
     && cp /app/target/release/cthulhu_bot /app
 
