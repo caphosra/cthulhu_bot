@@ -1,11 +1,8 @@
-use std::collections::HashMap;
-
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::command_parser::*;
 use crate::commands::*;
-use crate::user_data::UserInfo;
 
 pub struct Roll6Command;
 
@@ -27,7 +24,7 @@ impl BotCommand for Roll6Command {
         ctx: &Context,
         msg: &Message,
         info: &CommandInfo,
-        _data: &Mutex<HashMap<u64, UserInfo>>,
+        _data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str> {
         let limit: i32 = info
             .args
@@ -40,7 +37,7 @@ impl BotCommand for Roll6Command {
             limit => {
                 if result == 1 && (result <= limit) {
                     format!(
-                        "Result: :star::crown::star: *Critical!!!** (1 <= {})",
+                        "Result: :star::crown::star: **Critical!!!** (1 <= {})",
                         limit
                     )
                 } else if result <= 5 && (result <= limit) {

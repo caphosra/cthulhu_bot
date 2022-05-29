@@ -1,12 +1,9 @@
-use std::collections::HashMap;
-
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use serenity::utils::Color;
 
 use crate::command_parser::*;
 use crate::commands::*;
-use crate::user_data::UserInfo;
 
 pub struct StatusCommand;
 
@@ -15,9 +12,9 @@ impl StatusCommand {
         &self,
         ctx: &Context,
         msg: &Message,
-        hp: u8,
-        san: u8,
-        mp: u8,
+        hp: i16,
+        san: i16,
+        mp: i16,
     ) -> Result<(), &'static str> {
         let _ = msg
             .channel_id
@@ -56,18 +53,12 @@ impl BotCommand for StatusCommand {
         ctx: &Context,
         msg: &Message,
         _info: &CommandInfo,
-        data: &Mutex<HashMap<u64, UserInfo>>,
+        data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str> {
         let mut data = data.lock().await;
 
-        if let Some(info) = data.get(&msg.author.id.0) {
-            let _ = self.send_embed(ctx, msg, info.hp, info.san, info.mp).await;
-        } else {
-            let info = UserInfo::new(msg.author.id.0);
-            data.insert(msg.author.id.0, info);
-
-            let _ = self.send_embed(ctx, msg, 0, 0, 0).await;
-        }
+        let info = data.get_value(msg.author.id.0).await;
+        let _ = self.send_embed(ctx, msg, info.hp, info.san, info.mp).await;
 
         Ok(())
     }

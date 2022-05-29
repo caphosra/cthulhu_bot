@@ -1,11 +1,8 @@
-use std::collections::HashMap;
-
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::command_parser::*;
 use crate::commands::*;
-use crate::user_data::UserInfo;
 
 pub struct CreateSheetCommand;
 
@@ -24,7 +21,7 @@ impl BotCommand for CreateSheetCommand {
         ctx: &Context,
         msg: &Message,
         _info: &CommandInfo,
-        _data: &Mutex<HashMap<u64, UserInfo>>,
+        _data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str> {
         let mut out = String::new();
 
