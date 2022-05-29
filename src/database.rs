@@ -1,4 +1,4 @@
-use sqlx::postgres::PgPool;
+use sqlx::postgres::PgPoolOptions;
 use sqlx::Pool;
 use sqlx::Postgres;
 
@@ -81,7 +81,9 @@ impl BotDatabase for PgDatabase {
 
 impl PgDatabase {
     pub async fn init(uri: &str) -> Self {
-        let pool = PgPool::connect(uri)
+        let pool = PgPoolOptions::new()
+            .max_connections(18)
+            .connect(uri)
             .await
             .expect("Cannot connect to a sql.");
 
