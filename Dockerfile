@@ -7,7 +7,7 @@ COPY . /app
 RUN cd /app \
     && apt update \
     && apt upgrade -y \
-    && apt install libssl-dev -y \
+    && apt install pkg-config libssl-dev -y \
     && cargo build --release \
     && cp /app/target/release/cthulhu_bot /app
 

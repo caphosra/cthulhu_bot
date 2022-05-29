@@ -30,7 +30,7 @@ jobs:
         run: sudo apt install -y musl-tools
       - name: Install OpenSSL
         if : ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt install -y libssl-dev
+        run: sudo apt install -y pkg-config libssl-dev
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
