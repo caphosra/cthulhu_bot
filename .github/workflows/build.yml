@@ -10,31 +10,32 @@ name: Build
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            image: ekidd/rust-musl-builder:latest
             target: x86_64-unknown-linux-musl
             file: cthulhu_bot
           - os: windows-latest
-            image: abrarov/msvc-2022:2.14.0
             target: x86_64-pc-windows-msvc
             file: cthulhu_bot.exe
 
-    container:
-      image: ${{ matrix.image }}
-
     steps:
       - uses: actions/checkout@v2
+      - name: Build inside `ekidd/rust-musl-builder`
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder cargo build --release
       - uses: actions-rs/toolchain@v1
+        if: ${{ matrix.os == 'windows-latest' }}
         with:
           toolchain: stable
           target: ${{ matrix.target }}
       - uses: actions-rs/cargo@v1
+        if: ${{ matrix.os == 'windows-latest' }}
         with:
           command: build
           args: --release --target=${{ matrix.target }}
