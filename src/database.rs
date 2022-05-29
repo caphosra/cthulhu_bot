@@ -1,4 +1,3 @@
-use sqlx::postgres::PgDatabaseError;
 use sqlx::postgres::PgPool;
 use sqlx::Pool;
 use sqlx::Postgres;
@@ -23,15 +22,15 @@ pub struct DummyDatabase;
 
 #[serenity::async_trait]
 impl BotDatabase for DummyDatabase {
-    async fn try_get_value(&self, id: u64) -> Option<Status> {
+    async fn try_get_value(&self, _id: u64) -> Option<Status> {
         None
     }
 
-    async fn get_value(&self, id: u64) -> Status {
+    async fn get_value(&self, _id: u64) -> Status {
         Status::default()
     }
 
-    async fn set_value(&self, id: u64, status: Status) {
+    async fn set_value(&self, _id: u64, _status: Status) {
         panic!("This function is not implemented.")
     }
 }

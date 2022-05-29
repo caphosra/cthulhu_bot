@@ -55,7 +55,7 @@ impl BotCommand for StatusCommand {
         _info: &CommandInfo,
         data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str> {
-        let mut data = data.lock().await;
+        let data = data.lock().await;
 
         let info = data.get_value(msg.author.id.0).await;
         let _ = self.send_embed(ctx, msg, info.hp, info.san, info.mp).await;

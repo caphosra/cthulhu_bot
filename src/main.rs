@@ -1,6 +1,4 @@
 use std::env;
-use std::thread;
-use std::time;
 
 use once_cell::sync::Lazy;
 use serenity::model::prelude::*;
@@ -14,12 +12,6 @@ pub mod database;
 use crate::command_parser::*;
 use crate::commands::*;
 use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
-
-/// The path to the user data file.
-static DATA_FILE_PATH: &str = "./user_info.coc";
-
-/// The interval of saving the user data.
-static SAVE_USER_DATA_INTERVAL: time::Duration = time::Duration::from_secs(60 * 60 * 6);
 
 /// A database that contains users information.
 static DATABASE: Lazy<Mutex<SizedBotDatabase>> =

@@ -58,7 +58,7 @@ impl BotCommand for SetCommand {
         info: &CommandInfo,
         data: &Mutex<SizedBotDatabase>,
     ) -> Result<(), &'static str> {
-        let mut solid_data = data.lock().await;
+        let solid_data = data.lock().await;
         let mut user_info = solid_data.get_value(msg.author.id.0).await;
 
         let args = info.args.ok_or("`/set` calls for two arguments.")?;
