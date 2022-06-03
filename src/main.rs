@@ -42,7 +42,6 @@ async fn start_bot() -> Result<()> {
     let database_url = env::var("DATABASE_URL")?;
 
     let database = PgDatabase::init(&database_url).await?;
-
     {
         let mut db = DATABASE.lock().await;
         *db = Box::new(database);
