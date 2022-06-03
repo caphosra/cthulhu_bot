@@ -42,9 +42,10 @@ async fn main() {
     let database_url = env::var("DATABASE_URL").expect("Cannot gain a DATABASE_URL.");
 
     let database = PgDatabase::init(&database_url).await;
-
-    let mut db = DATABASE.lock().await;
-    *db = Box::new(database);
+    {
+        let mut db = DATABASE.lock().await;
+        *db = Box::new(database);
+    }
 
     // Load the environmental variables.
     let token = env::var("DISCORD_TOKEN").expect("Cannot gain a DISCORD_TOKEN.");
