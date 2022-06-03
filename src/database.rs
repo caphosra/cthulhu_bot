@@ -1,3 +1,4 @@
+use anyhow::Result;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Pool;
 use sqlx::Postgres;
@@ -13,7 +14,7 @@ pub struct Status {
 pub trait BotDatabase {
     async fn try_get_value(&self, id: u64) -> Option<Status>;
     async fn get_value(&self, id: u64) -> Status;
-    async fn set_value(&self, id: u64, status: Status);
+    async fn set_value(&self, id: u64, status: Status) -> Result<()>;
 }
 
 pub type SizedBotDatabase = Box<dyn BotDatabase + Send + Sync>;
@@ -30,7 +31,7 @@ impl BotDatabase for DummyDatabase {
         Status::default()
     }
 
-    async fn set_value(&self, _id: u64, _status: Status) {
+    async fn set_value(&self, _id: u64, _status: Status) -> Result<()> {
         panic!("This function is not implemented.")
     }
 }
@@ -42,7 +43,7 @@ pub struct PgDatabase {
 #[serenity::async_trait]
 impl BotDatabase for PgDatabase {
     async fn try_get_value(&self, id: u64) -> Option<Status> {
-        sqlx::query_as::<_, Status>("SELECT * FROM PlayerStatus WHERE id=?")
+        sqlx::query_as::<_, Status>("SELECT * FROM PlayerStatus WHERE id=$1")
             .bind(id.to_string())
             .fetch_one(&self.pool)
             .await
@@ -56,37 +57,35 @@ impl BotDatabase for PgDatabase {
         }
     }
 
-    async fn set_value(&self, id: u64, status: Status) {
+    async fn set_value(&self, id: u64, status: Status) -> Result<()> {
         if self.try_get_value(id).await.is_some() {
-            sqlx::query("UPDATE PlayerStatus SET hp=?, san=?, mp=? WHERE id=?")
+            sqlx::query("UPDATE PlayerStatus SET hp=$1, san=$2, mp=$3 WHERE id=$4")
                 .bind(status.hp)
                 .bind(status.san)
                 .bind(status.mp)
                 .bind(id.to_string())
                 .execute(&self.pool)
-                .await
-                .expect("Cannot update the status.");
+                .await?;
         } else {
-            sqlx::query("INSERT INTO PlayerStatus VALUES (?, ?, ?, ?)")
+            sqlx::query("INSERT INTO PlayerStatus VALUES ($1, $2, $3, $4)")
                 .bind(id.to_string())
                 .bind(status.hp)
                 .bind(status.san)
                 .bind(status.mp)
                 .execute(&self.pool)
-                .await
-                .expect("Cannot insert the status.");
+                .await?;
         }
+        Ok(())
     }
 }
 
 impl PgDatabase {
-    pub async fn init(uri: &str) -> Self {
+    pub async fn init(uri: &str) -> Result<Self> {
         let pool = PgPoolOptions::new()
             .max_connections(18)
             .connect(uri)
-            .await
-            .expect("Cannot connect to a sql.");
+            .await?;
 
-        Self { pool }
+        Ok(Self { pool })
     }
 }

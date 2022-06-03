@@ -74,7 +74,7 @@ impl BotCommand for SetCommand {
                     let previous = user_info.hp;
                     user_info.hp = value;
 
-                    solid_data.set_value(msg.author.id.0, user_info).await;
+                    let _ = solid_data.set_value(msg.author.id.0, user_info).await;
 
                     self.send_embed(ctx, msg, "HP", ":heart:", previous, value)
                         .await?;
@@ -85,7 +85,7 @@ impl BotCommand for SetCommand {
                     let previous = user_info.san;
                     user_info.san = value;
 
-                    solid_data.set_value(msg.author.id.0, user_info).await;
+                    let _ = solid_data.set_value(msg.author.id.0, user_info).await;
 
                     self.send_embed(ctx, msg, "SAN", ":shield:", previous, value)
                         .await?;
@@ -96,7 +96,7 @@ impl BotCommand for SetCommand {
                     let previous = user_info.mp;
                     user_info.mp = value;
 
-                    solid_data.set_value(msg.author.id.0, user_info).await;
+                    let _ = solid_data.set_value(msg.author.id.0, user_info).await;
 
                     self.send_embed(ctx, msg, "MP", ":comet:", previous, value)
                         .await?;

@@ -1,5 +1,6 @@
 use std::env;
 
+use anyhow::Result;
 use once_cell::sync::Lazy;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -37,25 +38,34 @@ impl EventHandler for Handler {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let database_url = env::var("DATABASE_URL").expect("Cannot gain a DATABASE_URL.");
+async fn start_bot() -> Result<()> {
+    let database_url = env::var("DATABASE_URL")?;
 
-    let database = PgDatabase::init(&database_url).await;
+    let database = PgDatabase::init(&database_url).await?;
     {
         let mut db = DATABASE.lock().await;
         *db = Box::new(database);
     }
 
     // Load the environmental variables.
-    let token = env::var("DISCORD_TOKEN").expect("Cannot gain a DISCORD_TOKEN.");
+    let token = env::var("DISCORD_TOKEN")?;
 
     // Build a client.
-    let mut client = Client::builder(&token)
-        .event_handler(Handler)
-        .await
-        .expect("Cannot setup a client.");
+    let mut client = Client::builder(&token).event_handler(Handler).await?;
 
     // Launch the client.
-    client.start().await.expect("Cannot start the bot.");
+    client.start().await?;
+
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    if let Err(err) = start_bot().await {
+        eprintln!("[BOT ERROR] {}", err);
+        err.chain()
+            .skip(1)
+            .for_each(|cause| eprintln!("[BOT ERROR] because: {}", cause));
+        std::process::exit(1);
+    }
 }
