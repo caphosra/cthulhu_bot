@@ -1,96 +1,61 @@
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use anyhow::Result;
+use serenity::builder::CreateApplicationCommand;
+use serenity::model::interactions::application_command::ApplicationCommandInteraction;
+use serenity::prelude::{Context, Mutex};
 
-use crate::command_parser::*;
-use crate::commands::*;
+use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
+use crate::database::SizedBotDatabase;
 
 pub struct CreateSheetCommand;
 
+macro_rules! add_content {
+    ($embed:expr, $name:expr, $roll:expr) => {{
+        let result = d20::roll_dice($roll).unwrap();
+        $embed.field(
+            format!("{} {}", $name, result.total),
+            result.as_string(),
+            true,
+        );
+    }};
+}
+
 #[serenity::async_trait]
 impl BotCommand for CreateSheetCommand {
-    fn is_able_to_recurse(&self) -> bool {
-        true
+    fn register(&self, command: &mut CreateApplicationCommand) {
+        command
+            .name("cs")
+            .description("Creates a character sheet. | キャラクターシートを作成します.");
     }
 
-    fn is_valid(&self, info: &CommandInfo) -> bool {
-        info.command == "create_sheet" || info.command == "cs"
+    fn name(&self) -> &str {
+        "cs"
     }
 
     async fn execute(
         &self,
         ctx: &Context,
-        msg: &Message,
-        _info: &CommandInfo,
+        interaction: &ApplicationCommandInteraction,
         _data: &Mutex<SizedBotDatabase>,
-    ) -> Result<(), &'static str> {
-        let mut out = String::new();
+    ) -> Result<Option<String>> {
+        let author = interaction.get_nickname();
 
-        let result = d20::roll_dice("3d6").unwrap();
-        out += format!(
-            "Result:\n:dagger: STR **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
+        interaction
+            .send_embed(ctx, |embed| {
+                embed.title(format!("{}'s character", author));
 
-        let result = d20::roll_dice("3d6").unwrap();
-        out += format!(
-            "\n:umbrella: CON **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
+                add_content!(embed, ":dagger: STR", "3d6");
+                add_content!(embed, ":umbrella: CON", "3d6");
+                add_content!(embed, ":heart: POW", "3d6");
+                add_content!(embed, ":dash: DEX", "3d6");
+                add_content!(embed, ":star: APP", "3d6");
+                add_content!(embed, ":elephant: SIZ", "2d6+6");
+                add_content!(embed, ":bulb: INT", "2d6+6");
+                add_content!(embed, ":books: EDU", "3d6+3");
 
-        let result = d20::roll_dice("3d6").unwrap();
-        out += format!(
-            "\n:heart: POW **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
+                embed
+            })
+            .await?;
 
-        let result = d20::roll_dice("3d6").unwrap();
-        out += format!(
-            "\n:dash: DEX **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
-
-        let result = d20::roll_dice("3d6").unwrap();
-        out += format!(
-            "\n:star: APP **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
-
-        let result = d20::roll_dice("2d6+6").unwrap();
-        out += format!(
-            "\n:elephant: SIZ **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
-
-        let result = d20::roll_dice("2d6+6").unwrap();
-        out += format!(
-            "\n:bulb: INT **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
-
-        let result = d20::roll_dice("3d6+3").unwrap();
-        out += format!(
-            "\n:books: EDU **{}** ({})",
-            result.total,
-            roll_to_string(&result)
-        )
-        .as_str();
-
-        let _ = msg.reply(ctx, &out).await;
-
-        Ok(())
+        Ok(None)
     }
 }

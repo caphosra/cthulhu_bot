@@ -1,65 +1,44 @@
-use serenity::model::prelude::*;
-use serenity::prelude::*;
-use serenity::utils::Color;
+use anyhow::Result;
+use serenity::builder::CreateApplicationCommand;
+use serenity::model::interactions::application_command::ApplicationCommandInteraction;
+use serenity::prelude::{Context, Mutex};
 
-use crate::command_parser::*;
-use crate::commands::*;
+use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
+use crate::database::SizedBotDatabase;
 
 pub struct StatusCommand;
 
-impl StatusCommand {
-    async fn send_embed(
-        &self,
-        ctx: &Context,
-        msg: &Message,
-        hp: i16,
-        san: i16,
-        mp: i16,
-    ) -> Result<(), &'static str> {
-        let _ = msg
-            .channel_id
-            .send_message(&ctx, |m| {
-                m.embed(|e| {
-                    e.title(format!("{}'s status", msg.author.name));
-                    e.field("HP", format!(":heart: **{}**", hp), true);
-                    e.field("SAN", format!(":shield: **{}**", san), true);
-                    e.field("MP", format!(":comet: **{}**", mp), true);
-                    e.color(Color::PURPLE);
-
-                    e
-                });
-                m.reference_message(msg);
-
-                m
-            })
-            .await;
-
-        Ok(())
-    }
-}
-
 #[serenity::async_trait]
 impl BotCommand for StatusCommand {
-    fn is_able_to_recurse(&self) -> bool {
-        true
+    fn register(&self, command: &mut CreateApplicationCommand) {
+        command
+            .name("status")
+            .description("Displays your status. | ステータスを表示します.");
     }
 
-    fn is_valid(&self, info: &CommandInfo) -> bool {
-        info.command == "status" || info.command == "st"
+    fn name(&self) -> &str {
+        "status"
     }
 
     async fn execute(
         &self,
         ctx: &Context,
-        msg: &Message,
-        _info: &CommandInfo,
+        interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
-    ) -> Result<(), &'static str> {
-        let data = data.lock().await;
+    ) -> Result<Option<String>> {
+        let nickname = interaction.get_nickname();
+        let user_id = interaction.user.id.0;
+        let status = data.lock().await.get_value(user_id).await;
 
-        let info = data.get_value(msg.author.id.0).await;
-        let _ = self.send_embed(ctx, msg, info.hp, info.san, info.mp).await;
+        interaction
+            .send_embed(ctx, |embed| {
+                embed.title(format!("{}'s status", nickname));
+                embed.field("HP", format!(":heart: **{}**", status.hp), true);
+                embed.field("SAN", format!(":shield: **{}**", status.san), true);
+                embed.field("MP", format!(":comet: **{}**", status.mp), true)
+            })
+            .await?;
 
-        Ok(())
+        Ok(None)
     }
 }

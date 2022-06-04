@@ -86,6 +86,8 @@ impl PgDatabase {
             .connect(uri)
             .await?;
 
+        println!("[BOT LOG] Connected to the database.");
+
         Ok(Self { pool })
     }
 }
