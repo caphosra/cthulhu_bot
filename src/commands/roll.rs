@@ -8,6 +8,7 @@ use serenity::prelude::{Context, Mutex};
 use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
+/// A command to roll dices.
 pub struct RollCommand;
 
 #[serenity::async_trait]
@@ -52,7 +53,11 @@ impl BotCommand for RollCommand {
             Ok(result) => {
                 interaction
                     .send_embed(ctx, |embed| {
-                        embed.title(format!("{} rolls dice(s){}", interaction.get_nickname(), comment));
+                        embed.title(format!(
+                            "{} rolls dice(s){}",
+                            interaction.get_nickname(),
+                            comment
+                        ));
                         embed.field(
                             format!(":game_die: {}", result.total),
                             result.as_string(),

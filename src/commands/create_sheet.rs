@@ -6,8 +6,10 @@ use serenity::prelude::{Context, Mutex};
 use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
+/// A command that creates a character sheet.
 pub struct CreateSheetCommand;
 
+/// Adds a content to the embed.
 macro_rules! add_content {
     ($embed:expr, $name:expr, $roll:expr) => {{
         let result = d20::roll_dice($roll).unwrap();

@@ -8,6 +8,7 @@ use serenity::prelude::{Context, Mutex};
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
+/// A command that does a skill roll.
 pub struct SkillCommand;
 
 #[serenity::async_trait]

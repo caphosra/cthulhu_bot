@@ -8,8 +8,10 @@ use serenity::prelude::{Context, Mutex};
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
+/// A command that changes the parameters.
 pub struct SetCommand;
 
+/// A macro that is used inside `update_param`.
 macro_rules! update_param_internal {
     ($status:tt, $param:tt, $value:expr) => {{
         let before = $status.$param;
@@ -18,6 +20,7 @@ macro_rules! update_param_internal {
     }};
 }
 
+/// Updates a parameter.
 macro_rules! update_param {
     ($status:tt, $param:expr, $value:expr) => {{
         match $param {
@@ -107,6 +110,7 @@ impl BotCommand for SetCommand {
 }
 
 impl SetCommand {
+    /// Gets an icon of the parameter.
     fn get_icon(parameter: &str) -> &str {
         match parameter {
             "HP" => ":heart:",

@@ -3,6 +3,7 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::Pool;
 use sqlx::Postgres;
 
+/// A user status.
 #[derive(Default, sqlx::FromRow)]
 pub struct Status {
     pub hp: i16,
@@ -10,15 +11,25 @@ pub struct Status {
     pub mp: i16,
 }
 
+/// Represents a database for the bot.
+///
+/// A struct that controls database must inherit this trait.
 #[serenity::async_trait]
 pub trait BotDatabase {
+    /// Tries to get the status. If failed, it returns `None`.
     async fn try_get_value(&self, id: u64) -> Option<Status>;
+
+    /// Gets the status. If there is no record, it returns a default value.
     async fn get_value(&self, id: u64) -> Status;
+
+    /// Reflects the changes of the status.
     async fn set_value(&self, id: u64, status: Status) -> Result<()>;
 }
 
+/// An abbreviation for `Box<dyn BotDatabase + Send + Sync>`.
 pub type SizedBotDatabase = Box<dyn BotDatabase + Send + Sync>;
 
+/// A database which contains nothing.
 pub struct DummyDatabase;
 
 #[serenity::async_trait]
@@ -36,6 +47,7 @@ impl BotDatabase for DummyDatabase {
     }
 }
 
+/// A database which uses Postgres SQL.
 pub struct PgDatabase {
     pool: Pool<Postgres>,
 }
@@ -80,6 +92,7 @@ impl BotDatabase for PgDatabase {
 }
 
 impl PgDatabase {
+    /// Connects to a database.
     pub async fn init(uri: &str) -> Result<Self> {
         let pool = PgPoolOptions::new()
             .max_connections(18)

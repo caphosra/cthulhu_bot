@@ -18,8 +18,13 @@ use crate::database::SizedBotDatabase;
 /// Represents a bot command.
 #[serenity::async_trait]
 pub trait BotCommand {
+    /// Registers a command to Discord.
     fn register(&self, command: &mut CreateApplicationCommand);
+
+    /// Gets a name of the command.
     fn name(&self) -> &str;
+
+    /// Executes the command.
     async fn execute(
         &self,
         ctx: &Context,
@@ -27,8 +32,6 @@ pub trait BotCommand {
         data: &Mutex<SizedBotDatabase>,
     ) -> Result<Option<String>>;
 }
-
-pub struct BotCommandManager;
 
 /// The commands which can be invoked through the bot.
 static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy::new(|| {
@@ -41,7 +44,11 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
     ]
 });
 
+/// Controls all of commands.
+pub struct BotCommandManager;
+
 impl BotCommandManager {
+    /// Registers all commands to Discord.
     pub async fn register_all(ctx: &Context) -> Result<()> {
         ApplicationCommand::set_global_application_commands(ctx, |builder| {
             let commands = REGISTERED_COMMANDS
@@ -64,6 +71,7 @@ impl BotCommandManager {
         Ok(())
     }
 
+    /// Executes a command.
     pub async fn run_command(
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
@@ -81,23 +89,20 @@ impl BotCommandManager {
         Ok(())
     }
 
-    pub async fn reply_error(
+    /// Reports an error to the user.
+    ///
+    /// This method cannot be used to report an internal server error.
+    async fn reply_error(
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
         error: String,
     ) -> Result<()> {
         interaction
-            .create_interaction_response(&ctx, |builder| {
-                builder.interaction_response_data(|builder| {
-                    builder.embed(|e| {
-                        e.title("ERROR");
-                        e.field("Message", error, false);
-                        e.color(Color::RED);
-                        e
-                    });
-                    builder
-                });
-                builder
+            .send_embed(ctx, |embed| {
+                embed.title("ERROR");
+                embed.field("Message", error, false);
+                embed.color(Color::RED);
+                embed
             })
             .await?;
 
@@ -105,9 +110,15 @@ impl BotCommandManager {
     }
 }
 
+/// An extension for `ApplicationCommandInteraction`.
 pub trait InteractionUtil {
+    /// Gets a nickname of the user who invoked the command.
     fn get_nickname(&self) -> String;
+
+    /// Gets a value of option as `String`.
     fn get_string_option(&self, name: String) -> Option<&str>;
+
+    /// Gets a value of option as `i32`.
     fn get_int_option(&self, name: String) -> Option<i32>;
 }
 
@@ -136,11 +147,13 @@ impl InteractionUtil for ApplicationCommandInteraction {
     }
 }
 
+/// An extension for `ApplicationCommandInteraction` to send an embed content easily.
 #[serenity::async_trait]
 pub trait SendEmbed<F, 'l>
 where
     F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send + 'l,
 {
+    /// Sends an embed to the user.
     async fn send_embed(&'l self, ctx: &Context, f: F) -> Result<()>;
 }
 
@@ -158,8 +171,9 @@ where
     }
 }
 
-/// Convert `Roll` into `String`.
+/// Provides the way to convert `Roll` into `String`.
 pub trait AsString {
+    /// Converts `Roll` into `String`.
     fn as_string(&self) -> String;
 }
 

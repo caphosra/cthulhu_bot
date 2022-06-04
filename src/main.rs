@@ -16,6 +16,7 @@ use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
 static DATABASE: Lazy<Mutex<SizedBotDatabase>> =
     Lazy::new(|| Mutex::new(Box::new(DummyDatabase {})));
 
+/// Checks whether some errors occurred or not, and if did, reports those.
 macro_rules! track_error {
     ($res: expr) => {
         if let Err(err) = $res {
@@ -53,6 +54,7 @@ impl EventHandler for Handler {
     }
 }
 
+/// Initializes a database and lets the bot start.
 async fn start_bot() -> Result<()> {
     let database_url = env::var("DATABASE_URL")?;
 

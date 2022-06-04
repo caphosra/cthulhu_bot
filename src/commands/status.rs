@@ -6,6 +6,7 @@ use serenity::prelude::{Context, Mutex};
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
+/// A command that displays the status.
 pub struct StatusCommand;
 
 #[serenity::async_trait]
