@@ -1,112 +1,122 @@
-use serenity::model::prelude::*;
-use serenity::prelude::*;
-use serenity::utils::Color;
+use anyhow::Result;
+use serenity::builder::CreateApplicationCommand;
+use serenity::model::interactions::application_command::{
+    ApplicationCommandInteraction, ApplicationCommandOptionType,
+};
+use serenity::prelude::{Context, Mutex};
 
-use crate::command_parser::*;
-use crate::commands::*;
+use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
+use crate::database::SizedBotDatabase;
 
+/// A command that changes the parameters.
 pub struct SetCommand;
 
-impl SetCommand {
-    async fn send_embed(
-        &self,
-        ctx: &Context,
-        msg: &Message,
-        title: &str,
-        emoji: &str,
-        previous: i16,
-        new: i16,
-    ) -> Result<(), &'static str> {
-        let _ = msg
-            .channel_id
-            .send_message(&ctx, |m| {
-                m.embed(|e| {
-                    e.title(format!("{}'s status", msg.author.name));
-                    e.field(
-                        title,
-                        format!("{} **{} -> {}**", emoji, previous, new),
-                        true,
-                    );
-                    e.color(Color::PURPLE);
+/// A macro that is used inside `update_param`.
+macro_rules! update_param_internal {
+    ($status:tt, $param:tt, $value:expr) => {{
+        let before = $status.$param;
+        $status.$param = $value;
+        before
+    }};
+}
 
-                    e
-                });
-                m.reference_message(msg);
-
-                m
-            })
-            .await;
-
-        Ok(())
-    }
+/// Updates a parameter.
+macro_rules! update_param {
+    ($status:tt, $param:expr, $value:expr) => {{
+        match $param {
+            "HP" => update_param_internal!($status, hp, $value),
+            "SAN" => update_param_internal!($status, san, $value),
+            "MP" => update_param_internal!($status, mp, $value),
+            _ => panic!("The parameter isn't valid."),
+        }
+    }};
 }
 
 #[serenity::async_trait]
 impl BotCommand for SetCommand {
-    fn is_able_to_recurse(&self) -> bool {
-        false
+    fn register(&self, command: &mut CreateApplicationCommand) {
+        command
+            .name("set")
+            .description("Assigns a value to your parameter. | パラメータに値を代入します.")
+            .create_option(|option| {
+                option
+                    .name("param")
+                    .kind(ApplicationCommandOptionType::String)
+                    .add_string_choice("HP", "HP")
+                    .add_string_choice("SAN", "SAN")
+                    .add_string_choice("MP", "MP")
+                    .description("A parameter name | 代入先")
+                    .required(true)
+            })
+            .create_option(|option| {
+                option
+                    .name("value")
+                    .kind(ApplicationCommandOptionType::Integer)
+                    .description("A value | 代入する値")
+                    .required(true)
+            });
     }
 
-    fn is_valid(&self, info: &CommandInfo) -> bool {
-        info.command == "set" || info.command == "s"
+    fn name(&self) -> &str {
+        "set"
     }
 
     async fn execute(
         &self,
         ctx: &Context,
-        msg: &Message,
-        info: &CommandInfo,
+        interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
-    ) -> Result<(), &'static str> {
-        let solid_data = data.lock().await;
-        let mut user_info = solid_data.get_value(msg.author.id.0).await;
+    ) -> Result<Option<String>> {
+        let parameter = interaction.get_string_option("param".into()).unwrap();
+        let value = interaction.get_int_option("value".into()).unwrap();
 
-        let args = info.args.ok_or("`/set` calls for two arguments.")?;
-        let args: Vec<&str> = args.split(' ').collect();
-        if args.len() == 2 {
-            let parameter = args[0];
-            let value: i16 = args[1]
-                .parse()
-                .map_err(|_| "You should give me an integer value.")?;
+        if value > 32767 || value < 0 {
+            return Ok(Some(
+                "You must provide the value between 0 and 32767. | 値は 0以上 32767以下 にしてください."
+                    .to_string(),
+            ));
+        }
 
-            match parameter {
-                "HP" | "hp" => {
-                    let previous = user_info.hp;
-                    user_info.hp = value;
+        let value = value as i16;
+        let data = data.lock().await;
+        let author = interaction.get_nickname();
+        let user_id = interaction.user.id.0;
+        let mut status = data.get_value(user_id).await;
 
-                    let _ = solid_data.set_value(msg.author.id.0, user_info).await;
+        match parameter {
+            "HP" | "SAN" | "MP" => {
+                let before = update_param!(status, parameter, value);
+                data.set_value(user_id, status).await?;
 
-                    self.send_embed(ctx, msg, "HP", ":heart:", previous, value)
-                        .await?;
+                interaction.send_embed(ctx, |embed| {
+                    embed.title(format!("{}'s status", author));
+                    embed.field(
+                        parameter,
+                        format!("{} **{}** → **{}**", Self::get_icon(parameter), before, value),
+                        false
+                    )
+                }).await?;
 
-                    Ok(())
-                }
-                "SAN" | "san" => {
-                    let previous = user_info.san;
-                    user_info.san = value;
+                Ok(None)
+            },
+            _ => Ok(Some(
+                format!(
+                    "The parameter named \"{}\" doesn't exist. | \"{}\"という名前のパラメータはありません.",
+                    parameter,
+                    parameter
+            )))
+        }
+    }
+}
 
-                    let _ = solid_data.set_value(msg.author.id.0, user_info).await;
-
-                    self.send_embed(ctx, msg, "SAN", ":shield:", previous, value)
-                        .await?;
-
-                    Ok(())
-                }
-                "MP" | "mp" => {
-                    let previous = user_info.mp;
-                    user_info.mp = value;
-
-                    let _ = solid_data.set_value(msg.author.id.0, user_info).await;
-
-                    self.send_embed(ctx, msg, "MP", ":comet:", previous, value)
-                        .await?;
-
-                    Ok(())
-                }
-                _ => Err("The parameter you suggested doesn't exist."),
-            }
-        } else {
-            Err("`/set` calls for two arguments.")
+impl SetCommand {
+    /// Gets an icon of the parameter.
+    fn get_icon(parameter: &str) -> &str {
+        match parameter {
+            "HP" => ":heart:",
+            "SAN" => ":shield:",
+            "MP" => ":comet:",
+            _ => "",
         }
     }
 }
