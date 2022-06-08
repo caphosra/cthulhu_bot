@@ -1,10 +1,10 @@
 use anyhow::Result;
+use rand::Rng;
 use serenity::builder::CreateApplicationCommand;
 use serenity::model::interactions::application_command::{
     ApplicationCommandInteraction, ApplicationCommandOptionType,
 };
 use serenity::prelude::{Context, Mutex};
-use rand::Rng;
 
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
@@ -47,14 +47,16 @@ impl BotCommand for ChooseCommand {
 
         let selected = rand::thread_rng().gen_range(0..choices.len());
 
-        interaction.send_embed(ctx, |embed| {
-            embed.title(format!("{}'s choice", author));
-            embed.field(
-                format!("**{}**", choices[selected]),
-                format!("From {}", choices.join(",")),
-                false
-            )
-        }).await?;
+        interaction
+            .send_embed(ctx, |embed| {
+                embed.title(format!("{}'s choice", author));
+                embed.field(
+                    format!("**{}**", choices[selected]),
+                    format!("From {}", choices.join(",")),
+                    false,
+                )
+            })
+            .await?;
 
         Ok(None)
     }
