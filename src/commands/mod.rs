@@ -8,6 +8,7 @@ use serenity::model::interactions::application_command::{
 use serenity::prelude::{Context, Mutex};
 use serenity::utils::Color;
 
+use crate::commands::choose::ChooseCommand;
 use crate::commands::create_sheet::CreateSheetCommand;
 use crate::commands::roll::RollCommand;
 use crate::commands::set::SetCommand;
@@ -36,6 +37,7 @@ pub trait BotCommand {
 /// The commands which can be invoked through the bot.
 static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy::new(|| {
     vec![
+        Box::new(ChooseCommand),
         Box::new(CreateSheetCommand),
         Box::new(RollCommand),
         Box::new(SetCommand),
@@ -194,6 +196,7 @@ impl AsString for Roll {
     }
 }
 
+pub mod choose;
 pub mod create_sheet;
 pub mod roll;
 pub mod set;
