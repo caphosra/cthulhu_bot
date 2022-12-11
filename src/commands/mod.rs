@@ -11,9 +11,7 @@ use serenity::utils::Color;
 use crate::commands::choose::ChooseCommand;
 use crate::commands::create_sheet::CreateSheetCommand;
 use crate::commands::roll::RollCommand;
-use crate::commands::set::SetCommand;
 use crate::commands::skill::SkillCommand;
-use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
 
 /// Represents a bot command.
@@ -40,8 +38,6 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
         Box::new(ChooseCommand),
         Box::new(CreateSheetCommand),
         Box::new(RollCommand),
-        Box::new(SetCommand),
-        Box::new(StatusCommand),
         Box::new(SkillCommand),
     ]
 });
@@ -199,6 +195,4 @@ impl AsString for Roll {
 pub mod choose;
 pub mod create_sheet;
 pub mod roll;
-pub mod set;
 pub mod skill;
-pub mod status;
