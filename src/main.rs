@@ -10,7 +10,7 @@ pub mod commands;
 pub mod database;
 
 use crate::commands::BotCommandManager;
-use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
+use crate::database::{DummyDatabase, SizedBotDatabase};
 
 /// A database that contains users information.
 static DATABASE: Lazy<Mutex<SizedBotDatabase>> =
@@ -54,16 +54,8 @@ impl EventHandler for Handler {
     }
 }
 
-/// Initializes a database and lets the bot start.
+/// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
-    let database_url = env::var("DATABASE_URL")?;
-
-    let database = PgDatabase::init(&database_url).await?;
-    {
-        let mut db = DATABASE.lock().await;
-        *db = Box::new(database);
-    }
-
     // Load the environmental variables.
     let token = env::var("DISCORD_TOKEN")?;
 

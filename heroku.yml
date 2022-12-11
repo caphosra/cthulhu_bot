@@ -3,5 +3,4 @@ build:
     worker: Dockerfile
   config:
     APPLICATION_ID: $APPLICATION_ID
-    DATABASE_URL: $DATABASE_URL
     DISCORD_TOKEN: $DISCORD_TOKEN
