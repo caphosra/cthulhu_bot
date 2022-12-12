@@ -1,9 +1,8 @@
 use anyhow::Result;
 use rand::Rng;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::{
-    ApplicationCommandInteraction, ApplicationCommandOptionType,
-};
+use serenity::model::application::command::CommandOptionType;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
@@ -21,7 +20,7 @@ impl BotCommand for ChooseCommand {
             .create_option(|option| {
                 option
                     .name("choices")
-                    .kind(ApplicationCommandOptionType::String)
+                    .kind(CommandOptionType::String)
                     .description("A comma-separated choices (ex. A,B,C) | カンマで区切られた選択肢 (例: A,B,C)")
                     .required(true)
             });

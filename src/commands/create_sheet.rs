@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::ApplicationCommandInteraction;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};

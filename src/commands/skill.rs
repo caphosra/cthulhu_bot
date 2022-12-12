@@ -1,8 +1,7 @@
 use anyhow::Result;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::{
-    ApplicationCommandInteraction, ApplicationCommandOptionType,
-};
+use serenity::model::application::command::CommandOptionType;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
@@ -20,14 +19,14 @@ impl BotCommand for SkillCommand {
             .create_option(|option| {
                 option
                     .name("value")
-                    .kind(ApplicationCommandOptionType::Integer)
+                    .kind(CommandOptionType::Integer)
                     .description("A skill value | 技能値")
                     .required(true)
             })
             .create_option(|option| {
                 option
                     .name("comment")
-                    .kind(ApplicationCommandOptionType::String)
+                    .kind(CommandOptionType::String)
                     .description("A comment | ダイスの説明")
             });
     }

@@ -2,9 +2,8 @@ use anyhow::Result;
 use d20::Roll;
 use once_cell::sync::Lazy;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
-use serenity::model::interactions::application_command::{
-    ApplicationCommand, ApplicationCommandInteraction,
-};
+use serenity::model::application::command::Command;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 use serenity::utils::Color;
 
@@ -48,7 +47,7 @@ pub struct BotCommandManager;
 impl BotCommandManager {
     /// Registers all commands to Discord.
     pub async fn register_all(ctx: &Context) -> Result<()> {
-        ApplicationCommand::set_global_application_commands(ctx, |builder| {
+        Command::set_global_application_commands(ctx, |builder| {
             let commands = REGISTERED_COMMANDS
                 .iter()
                 .map(|command| {

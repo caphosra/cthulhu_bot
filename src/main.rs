@@ -2,7 +2,8 @@ use std::env;
 
 use anyhow::Result;
 use once_cell::sync::Lazy;
-use serenity::model::prelude::{Activity, Interaction, InteractionType, Ready};
+use serenity::model::application::interaction::{Interaction, InteractionType};
+use serenity::model::prelude::{Activity, Ready};
 use serenity::prelude::{Context, EventHandler, GatewayIntents, Mutex};
 use serenity::Client;
 

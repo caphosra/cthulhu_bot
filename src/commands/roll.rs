@@ -1,8 +1,7 @@
 use anyhow::Result;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::{
-    ApplicationCommandInteraction, ApplicationCommandOptionType,
-};
+use serenity::model::application::command::CommandOptionType;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
@@ -20,14 +19,14 @@ impl BotCommand for RollCommand {
             .create_option(|option| {
                 option
                     .name("dice")
-                    .kind(ApplicationCommandOptionType::String)
+                    .kind(CommandOptionType::String)
                     .description("An expression to evaluate (ex. `3d4 + 1`) | 振りたいダイス (例: `3d4 + 1`)")
                     .required(true)
             })
             .create_option(|option| {
                 option
                     .name("comment")
-                    .kind(ApplicationCommandOptionType::String)
+                    .kind(CommandOptionType::String)
                     .description("A comment | ダイスの説明")
             });
     }
