@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate cmd_macro;
+
 use std::env;
 
 use anyhow::Result;

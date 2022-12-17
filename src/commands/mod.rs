@@ -25,7 +25,7 @@ pub trait BotCommand {
     fn name(&self) -> &str;
 
     /// Returns whether the command depends on a database.
-    fn db_free(&self) -> bool;
+    fn use_db(&self) -> bool;
 
     /// Executes the command.
     async fn execute(
@@ -58,7 +58,7 @@ impl BotCommandManager {
             let commands = REGISTERED_COMMANDS
                 .iter()
                 .filter_map(|command| {
-                    if db_available || !command.db_free() {
+                    if db_available || !command.use_db() {
                         let mut builder = CreateApplicationCommand::default();
                         command.register(&mut builder);
 

@@ -60,10 +60,7 @@ impl BotCommand for SetCommand {
         "set"
     }
 
-    fn db_free(&self) -> bool {
-        true
-    }
-
+    #[db_required(true)]
     async fn execute(
         &self,
         ctx: &Context,

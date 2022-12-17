@@ -5,7 +5,6 @@ use serenity::model::application::interaction::application_command::ApplicationC
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
-use crate::database::SizedBotDatabase;
 
 /// A command that does a skill roll.
 pub struct SkillCommand;
@@ -35,15 +34,11 @@ impl BotCommand for SkillCommand {
         "skill"
     }
 
-    fn db_free(&self) -> bool {
-        false
-    }
-
+    #[db_required(false)]
     async fn execute(
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-        _data: &Mutex<SizedBotDatabase>,
     ) -> Result<Option<String>> {
         let value = interaction.get_int_option("value".to_string()).unwrap();
 
