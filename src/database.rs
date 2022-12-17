@@ -16,6 +16,9 @@ pub struct Status {
 /// A struct that controls database must inherit this trait.
 #[serenity::async_trait]
 pub trait BotDatabase {
+    // Checks whether all of the features are ready.
+    fn is_available(&self) -> bool;
+
     /// Tries to get the status. If failed, it returns `None`.
     async fn try_get_value(&self, id: u64) -> Option<Status>;
 
@@ -34,12 +37,16 @@ pub struct DummyDatabase;
 
 #[serenity::async_trait]
 impl BotDatabase for DummyDatabase {
+    fn is_available(&self) -> bool {
+        false
+    }
+
     async fn try_get_value(&self, _id: u64) -> Option<Status> {
-        None
+        panic!("This function is not implemented.")
     }
 
     async fn get_value(&self, _id: u64) -> Status {
-        Status::default()
+        panic!("This function is not implemented.")
     }
 
     async fn set_value(&self, _id: u64, _status: Status) -> Result<()> {
@@ -54,6 +61,10 @@ pub struct PgDatabase {
 
 #[serenity::async_trait]
 impl BotDatabase for PgDatabase {
+    fn is_available(&self) -> bool {
+        true
+    }
+
     async fn try_get_value(&self, id: u64) -> Option<Status> {
         sqlx::query_as::<_, Status>("SELECT * FROM PlayerStatus WHERE id=$1")
             .bind(id.to_string())

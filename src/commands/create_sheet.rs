@@ -33,6 +33,10 @@ impl BotCommand for CreateSheetCommand {
         "cs"
     }
 
+    fn depend_on_db(&self) -> bool {
+        false
+    }
+
     async fn execute(
         &self,
         ctx: &Context,

@@ -22,6 +22,9 @@ pub trait BotCommand {
     /// Gets a name of the command.
     fn name(&self) -> &str;
 
+    /// Returns whether the command depends on a database.
+    fn depend_on_db(&self) -> bool;
+
     /// Executes the command.
     async fn execute(
         &self,
@@ -46,17 +49,21 @@ pub struct BotCommandManager;
 
 impl BotCommandManager {
     /// Registers all commands to Discord.
-    pub async fn register_all(ctx: &Context) -> Result<()> {
+    pub async fn register_all(ctx: &Context, db_available: bool) -> Result<()> {
         Command::set_global_application_commands(ctx, |builder| {
             let commands = REGISTERED_COMMANDS
                 .iter()
-                .map(|command| {
-                    let mut builder = CreateApplicationCommand::default();
-                    command.register(&mut builder);
+                .filter_map(|command| {
+                    if db_available || !command.depend_on_db() {
+                        let mut builder = CreateApplicationCommand::default();
+                        command.register(&mut builder);
 
-                    println!("[BOT LOG] Registered /{}.", command.name());
+                        println!("[BOT LOG] Registered /{}.", command.name());
 
-                    builder
+                        Some(builder)
+                    } else {
+                        None
+                    }
                 })
                 .collect();
             builder.set_application_commands(commands)

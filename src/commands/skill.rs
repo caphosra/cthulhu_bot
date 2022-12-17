@@ -35,6 +35,10 @@ impl BotCommand for SkillCommand {
         "skill"
     }
 
+    fn depend_on_db(&self) -> bool {
+        false
+    }
+
     async fn execute(
         &self,
         ctx: &Context,

@@ -14,7 +14,8 @@ impl EventHandler for BotHandler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         ctx.set_activity(Activity::playing(STATUS_MESSAGE)).await;
 
-        let result = BotCommandManager::register_all(&ctx).await;
+        let db = DATABASE.lock().await;
+        let result = BotCommandManager::register_all(&ctx, db.is_available()).await;
         result.eprint_all();
 
         println!("[BOT LOG] {} is ready.", ready.user.name);
