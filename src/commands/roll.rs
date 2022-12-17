@@ -20,7 +20,7 @@ impl BotCommand for RollCommand {
                 option
                     .name("dice")
                     .kind(CommandOptionType::String)
-                    .description("An expression to evaluate (ex. `3d4 + 1`) | 振りたいダイス (例: `3d4 + 1`)")
+                    .description("An expression to be evaluated (ex. `3d4 + 1`) | 振りたいダイス (例: `3d4 + 1`)")
                     .required(true)
             })
             .create_option(|option| {
@@ -41,12 +41,12 @@ impl BotCommand for RollCommand {
         interaction: &ApplicationCommandInteraction,
         _data: &Mutex<SizedBotDatabase>,
     ) -> Result<Option<String>> {
-        let dice = interaction.get_string_option("dice".to_string()).unwrap();
+        let dice = interaction.get_string_option("dice".into()).unwrap();
 
         let comment = interaction
-            .get_string_option("comment".to_string())
+            .get_string_option("comment".into())
             .map(|comment| format!(" for {}", comment))
-            .unwrap_or("".to_string());
+            .unwrap_or_default();
 
         match d20::roll_dice(dice) {
             Ok(result) => {

@@ -16,12 +16,12 @@ impl BotCommand for ChooseCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
             .name("choose")
-            .description("Make a random choice. | 与えられたものからランダムに選択をします.")
+            .description("Makes a random choice. | 与えられたものからランダムに選択をします.")
             .create_option(|option| {
                 option
                     .name("choices")
                     .kind(CommandOptionType::String)
-                    .description("A comma-separated choices (ex. A,B,C) | カンマで区切られた選択肢 (例: A,B,C)")
+                    .description("Comma-separated choices (ex. A,B,C) | カンマで区切られた選択肢 (例: A,B,C)")
                     .required(true)
             });
     }
