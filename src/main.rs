@@ -25,8 +25,7 @@ async fn start_bot() -> Result<()> {
         *db = Box::new(database);
 
         println!("[BOT LOG] Initialized the database.")
-    }
-    else {
+    } else {
         println!("[BOT LOG] Is going to run without the database.")
     }
 
