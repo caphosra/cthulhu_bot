@@ -10,7 +10,9 @@ use serenity::utils::Color;
 use crate::commands::choose::ChooseCommand;
 use crate::commands::create_sheet::CreateSheetCommand;
 use crate::commands::roll::RollCommand;
+use crate::commands::set::SetCommand;
 use crate::commands::skill::SkillCommand;
+use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
 
 /// Represents a bot command.
@@ -23,7 +25,7 @@ pub trait BotCommand {
     fn name(&self) -> &str;
 
     /// Returns whether the command depends on a database.
-    fn depend_on_db(&self) -> bool;
+    fn db_free(&self) -> bool;
 
     /// Executes the command.
     async fn execute(
@@ -41,6 +43,8 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
         Box::new(CreateSheetCommand),
         Box::new(RollCommand),
         Box::new(SkillCommand),
+        Box::new(SetCommand),
+        Box::new(StatusCommand),
     ]
 });
 
@@ -54,7 +58,7 @@ impl BotCommandManager {
             let commands = REGISTERED_COMMANDS
                 .iter()
                 .filter_map(|command| {
-                    if db_available || !command.depend_on_db() {
+                    if db_available || !command.db_free() {
                         let mut builder = CreateApplicationCommand::default();
                         command.register(&mut builder);
 
@@ -201,4 +205,6 @@ impl AsString for Roll {
 pub mod choose;
 pub mod create_sheet;
 pub mod roll;
+pub mod set;
 pub mod skill;
+pub mod status;

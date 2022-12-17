@@ -5,7 +5,7 @@ use once_cell::sync::Lazy;
 use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
 
-use crate::database::{DummyDatabase, SizedBotDatabase};
+use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
 use crate::error::DisplayErr;
 use crate::handler::BotHandler;
 
@@ -18,6 +18,18 @@ pub const STATUS_MESSAGE: &str = "Call of Cthulhu";
 
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
+    if let Ok(database_url) = env::var("DATABASE_URL") {
+        let database = PgDatabase::init(&database_url).await?;
+
+        let mut db = DATABASE.lock().await;
+        *db = Box::new(database);
+
+        println!("[BOT LOG] Initialized the database.")
+    }
+    else {
+        println!("[BOT LOG] Is going to run without the database.")
+    }
+
     // Load the environmental variables.
     let token = env::var("DISCORD_TOKEN")?;
 

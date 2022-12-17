@@ -30,7 +30,7 @@ impl BotCommand for ChooseCommand {
         "choose"
     }
 
-    fn depend_on_db(&self) -> bool {
+    fn db_free(&self) -> bool {
         false
     }
 

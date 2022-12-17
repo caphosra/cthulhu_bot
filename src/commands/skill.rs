@@ -35,7 +35,7 @@ impl BotCommand for SkillCommand {
         "skill"
     }
 
-    fn depend_on_db(&self) -> bool {
+    fn db_free(&self) -> bool {
         false
     }
 

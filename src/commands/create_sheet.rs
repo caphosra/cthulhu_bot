@@ -33,7 +33,7 @@ impl BotCommand for CreateSheetCommand {
         "cs"
     }
 
-    fn depend_on_db(&self) -> bool {
+    fn db_free(&self) -> bool {
         false
     }
 
