@@ -10,8 +10,8 @@ use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 pub struct SkillCommand;
 
 #[serenity::async_trait]
+#[naming]
 impl BotCommand for SkillCommand {
-    #[name("skill")]
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
             .description("Attempts a skill roll. In other words, rolls 1d100. | 技能ロールを行います. 1d100を振って判定します.")

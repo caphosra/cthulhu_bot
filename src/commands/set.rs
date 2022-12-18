@@ -32,8 +32,8 @@ macro_rules! update_param {
 }
 
 #[serenity::async_trait]
+#[naming]
 impl BotCommand for SetCommand {
-    #[name("set")]
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
             .description("Assigns a value to your parameter. | パラメータに値を代入します.")

@@ -10,8 +10,8 @@ use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
 pub struct RollCommand;
 
 #[serenity::async_trait]
+#[naming]
 impl BotCommand for RollCommand {
-    #[name("roll")]
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
             .description("Rolls designated dices. | 指定されたダイスを振ります.")

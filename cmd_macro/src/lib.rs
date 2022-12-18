@@ -1,6 +1,9 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{parse_macro_input, FnArg, GenericParam, ItemFn, Stmt, WherePredicate};
+use regex::Regex;
+use syn::{
+    parse_macro_input, FnArg, GenericParam, ImplItem, ItemFn, ItemImpl, Stmt, WherePredicate,
+};
 
 /// Specifies whether the command depends on the database.
 #[proc_macro_attribute]
@@ -67,32 +70,52 @@ pub fn db_required(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Specifies whether the command depends on the database.
 #[proc_macro_attribute]
-pub fn name(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let attr: proc_macro2::TokenStream = attr.into();
+pub fn naming(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let mut impl_item = parse_macro_input!(item as ItemImpl);
+    let self_type = impl_item.self_ty.to_token_stream().to_string();
 
-    let mut function = parse_macro_input!(item as ItemFn);
+    let regex = Regex::new(r"^(.*)Command$").unwrap();
+    let name = format!(
+        "\"{}\"",
+        regex.captures(&self_type).unwrap().get(1).unwrap().as_str()
+    );
 
-    let arg = match function.sig.inputs.last().unwrap() {
-        FnArg::Receiver(_) => panic!("The last argument must not be a receiver."),
-        FnArg::Typed(typed) => typed.pat.to_token_stream(),
-    };
+    let name: proc_macro2::TokenStream = name.to_lowercase().parse().unwrap();
 
-    let stmt: TokenStream = (quote! {
-        #arg.name(#attr);
+    for item in impl_item.items.iter_mut() {
+        match item {
+            ImplItem::Method(method) => {
+                if method.sig.ident.to_string() == "register" {
+                    let arg = match method.sig.inputs.last().unwrap() {
+                        FnArg::Receiver(_) => panic!("The last argument must not be a receiver."),
+                        FnArg::Typed(typed) => typed.pat.to_token_stream(),
+                    };
+
+                    let stmt: TokenStream = (quote! {
+                        #arg.name(#name);
+                    })
+                    .into();
+
+                    method
+                        .block
+                        .stmts
+                        .insert(0, parse_macro_input!(stmt as Stmt));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let name_function: TokenStream = (quote! {
+        fn name(&self) -> &str {
+            #name
+        }
     })
     .into();
 
-    function
-        .block
-        .stmts
-        .insert(0, parse_macro_input!(stmt as Stmt));
+    impl_item
+        .items
+        .push(parse_macro_input!(name_function as ImplItem));
 
-    quote! {
-        fn name(&self) -> &str {
-            #attr
-        }
-
-        #function
-    }
-    .into()
+    impl_item.to_token_stream().into()
 }

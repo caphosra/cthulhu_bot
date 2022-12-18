@@ -11,8 +11,8 @@ use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 pub struct ChooseCommand;
 
 #[serenity::async_trait]
+#[naming]
 impl BotCommand for ChooseCommand {
-    #[name("choose")]
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
             .description("Makes a random choice. | 与えられたものからランダムに選択をします.")

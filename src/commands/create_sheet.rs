@@ -6,7 +6,7 @@ use serenity::prelude::{Context, Mutex};
 use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
 
 /// A command that creates a character sheet.
-pub struct CreateSheetCommand;
+pub struct CSCommand;
 
 /// Adds a content to the embed.
 macro_rules! add_content {
@@ -21,8 +21,8 @@ macro_rules! add_content {
 }
 
 #[serenity::async_trait]
-impl BotCommand for CreateSheetCommand {
-    #[name("cs")]
+#[naming]
+impl BotCommand for CSCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command.description("Creates a character sheet. | キャラクターシートを作成します.");
     }
