@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, FnArg, GenericParam, ItemFn, WherePredicate};
+use quote::{quote, ToTokens};
+use syn::{parse_macro_input, FnArg, GenericParam, ItemFn, Stmt, WherePredicate};
 
 /// Specifies whether the command depends on the database.
 #[proc_macro_attribute]
@@ -57,6 +57,38 @@ pub fn db_required(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     quote! {
         fn use_db(&self) -> bool {
+            #attr
+        }
+
+        #function
+    }
+    .into()
+}
+
+/// Specifies whether the command depends on the database.
+#[proc_macro_attribute]
+pub fn name(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let attr: proc_macro2::TokenStream = attr.into();
+
+    let mut function = parse_macro_input!(item as ItemFn);
+
+    let arg = match function.sig.inputs.last().unwrap() {
+        FnArg::Receiver(_) => panic!("The last argument must not be a receiver."),
+        FnArg::Typed(typed) => typed.pat.to_token_stream(),
+    };
+
+    let stmt: TokenStream = (quote! {
+        #arg.name(#attr);
+    })
+    .into();
+
+    function
+        .block
+        .stmts
+        .insert(0, parse_macro_input!(stmt as Stmt));
+
+    quote! {
+        fn name(&self) -> &str {
             #attr
         }
 

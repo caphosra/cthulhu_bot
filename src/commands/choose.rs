@@ -12,9 +12,9 @@ pub struct ChooseCommand;
 
 #[serenity::async_trait]
 impl BotCommand for ChooseCommand {
+    #[name("choose")]
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .name("choose")
             .description("Makes a random choice. | 与えられたものからランダムに選択をします.")
             .create_option(|option| {
                 option
@@ -23,10 +23,6 @@ impl BotCommand for ChooseCommand {
                     .description("Comma-separated choices (ex. A,B,C) | カンマで区切られた選択肢 (例: A,B,C)")
                     .required(true)
             });
-    }
-
-    fn name(&self) -> &str {
-        "choose"
     }
 
     #[db_required(false)]

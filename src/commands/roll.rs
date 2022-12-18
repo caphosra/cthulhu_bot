@@ -11,9 +11,9 @@ pub struct RollCommand;
 
 #[serenity::async_trait]
 impl BotCommand for RollCommand {
+    #[name("roll")]
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .name("roll")
             .description("Rolls designated dices. | 指定されたダイスを振ります.")
             .create_option(|option| {
                 option
@@ -28,10 +28,6 @@ impl BotCommand for RollCommand {
                     .kind(CommandOptionType::String)
                     .description("A comment | ダイスの説明")
             });
-    }
-
-    fn name(&self) -> &str {
-        "roll"
     }
 
     #[db_required(false)]

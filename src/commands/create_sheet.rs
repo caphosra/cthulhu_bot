@@ -22,14 +22,9 @@ macro_rules! add_content {
 
 #[serenity::async_trait]
 impl BotCommand for CreateSheetCommand {
+    #[name("cs")]
     fn register(&self, command: &mut CreateApplicationCommand) {
-        command
-            .name("cs")
-            .description("Creates a character sheet. | キャラクターシートを作成します.");
-    }
-
-    fn name(&self) -> &str {
-        "cs"
+        command.description("Creates a character sheet. | キャラクターシートを作成します.");
     }
 
     #[db_required(false)]
