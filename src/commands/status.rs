@@ -11,12 +11,12 @@ pub struct StatusCommand;
 
 #[serenity::async_trait]
 #[naming]
+#[db_required(true)]
 impl BotCommand for StatusCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command.description("Displays your status. | ステータスを表示します.");
     }
 
-    #[db_required(true)]
     async fn execute(
         &self,
         ctx: &Context,

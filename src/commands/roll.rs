@@ -11,6 +11,7 @@ pub struct RollCommand;
 
 #[serenity::async_trait]
 #[naming]
+#[db_required(false)]
 impl BotCommand for RollCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
@@ -30,7 +31,6 @@ impl BotCommand for RollCommand {
             });
     }
 
-    #[db_required(false)]
     async fn execute(
         &self,
         ctx: &Context,

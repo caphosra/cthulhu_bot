@@ -11,6 +11,7 @@ pub struct SkillCommand;
 
 #[serenity::async_trait]
 #[naming]
+#[db_required(false)]
 impl BotCommand for SkillCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
@@ -30,7 +31,6 @@ impl BotCommand for SkillCommand {
             });
     }
 
-    #[db_required(false)]
     async fn execute(
         &self,
         ctx: &Context,
