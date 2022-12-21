@@ -4,7 +4,7 @@ use serenity::model::application::command::CommandOptionType;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
 /// A command that changes the parameters.
@@ -41,12 +41,12 @@ impl BotCommand for SetCommand {
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let parameter = interaction.get_string_option("param".into()).unwrap();
         let value = interaction.get_int_option("value".into()).unwrap();
 
         if value > 32767 || value < 0 {
-            return Ok(Some(
+            return Ok(CommandStatus::Err(
                 "You must provide the value between 0 and 32767. | 値は 0以上 32767以下 にしてください."
                     .to_string(),
             ));
@@ -72,9 +72,9 @@ impl BotCommand for SetCommand {
                     )
                 }).await?;
 
-                Ok(None)
+                Ok(CommandStatus::Ok)
             },
-            _ => Ok(Some(
+            _ => Ok(CommandStatus::Err(
                 format!(
                     "The parameter named \"{}\" doesn't exist. | \"{}\"という名前のパラメータはありません.",
                     parameter,

@@ -4,7 +4,7 @@ use serenity::model::application::command::CommandOptionType;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command that does a skill roll.
 pub struct SkillCommand;
@@ -35,7 +35,7 @@ impl BotCommand for SkillCommand {
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let value = interaction.get_int_option("value".to_string()).unwrap();
 
         let comment = interaction
@@ -68,6 +68,6 @@ impl BotCommand for SkillCommand {
             })
             .await?;
 
-        Ok(None)
+        Ok(CommandStatus::Ok)
     }
 }

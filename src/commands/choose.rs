@@ -5,7 +5,7 @@ use serenity::model::application::command::CommandOptionType;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command that make a random choice.
 pub struct ChooseCommand;
@@ -30,7 +30,7 @@ impl BotCommand for ChooseCommand {
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let choices: Vec<&str> = interaction
             .get_string_option("choices".into())
             .unwrap()
@@ -52,6 +52,6 @@ impl BotCommand for ChooseCommand {
             })
             .await?;
 
-        Ok(None)
+        Ok(CommandStatus::Ok)
     }
 }

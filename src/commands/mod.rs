@@ -15,6 +15,13 @@ use crate::commands::skill::SkillCommand;
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
 
+/// Represents a handled result of the command.
+/// Note that you cannot use this for internal errors.
+pub enum CommandStatus {
+    Ok,
+    Err(String),
+}
+
 /// Represents a bot command.
 #[serenity::async_trait]
 pub trait BotCommand {
@@ -33,7 +40,7 @@ pub trait BotCommand {
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>>;
+    ) -> Result<CommandStatus>;
 }
 
 /// The commands which can be invoked through the bot.
@@ -89,7 +96,7 @@ impl BotCommandManager {
             if command.name() == interaction.data.name {
                 let result = command.execute(ctx, interaction, data).await?;
 
-                if let Some(message) = result {
+                if let CommandStatus::Err(message) = result {
                     Self::reply_error(ctx, interaction, message).await?;
                 };
             }

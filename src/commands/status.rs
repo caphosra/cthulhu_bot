@@ -3,7 +3,7 @@ use serenity::builder::CreateApplicationCommand;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 use crate::database::SizedBotDatabase;
 
 /// A command that displays the status.
@@ -22,7 +22,7 @@ impl BotCommand for StatusCommand {
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let nickname = interaction.get_nickname();
         let user_id = interaction.user.id.0;
         let status = data.lock().await.get_value(user_id).await;
@@ -36,6 +36,6 @@ impl BotCommand for StatusCommand {
             })
             .await?;
 
-        Ok(None)
+        Ok(CommandStatus::Ok)
     }
 }

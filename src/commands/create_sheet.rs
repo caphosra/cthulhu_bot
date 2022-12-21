@@ -4,7 +4,7 @@ use serenity::builder::CreateApplicationCommand;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
+use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command that creates a character sheet.
 pub struct CSCommand;
@@ -65,7 +65,7 @@ impl BotCommand for CSCommand {
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let author = interaction.get_nickname();
 
         interaction
@@ -85,6 +85,6 @@ impl BotCommand for CSCommand {
             })
             .await?;
 
-        Ok(None)
+        Ok(CommandStatus::Ok)
     }
 }

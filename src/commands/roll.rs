@@ -4,7 +4,7 @@ use serenity::model::application::command::CommandOptionType;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
+use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command to roll dices.
 pub struct RollCommand;
@@ -35,7 +35,7 @@ impl BotCommand for RollCommand {
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let dice = interaction.get_string_option("dice".into()).unwrap();
 
         let comment = interaction
@@ -60,9 +60,9 @@ impl BotCommand for RollCommand {
                     })
                     .await?;
 
-                Ok(None)
+                Ok(CommandStatus::Ok)
             }
-            Err(err) => Ok(Some(err.to_string())),
+            Err(err) => Ok(CommandStatus::Err(err.to_string())),
         }
     }
 }
