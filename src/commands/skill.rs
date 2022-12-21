@@ -9,9 +9,9 @@ use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
 /// A command that does a skill roll.
 pub struct SkillCommand;
 
-#[serenity::async_trait]
 #[naming]
 #[db_required(false)]
+#[serenity::async_trait]
 impl BotCommand for SkillCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command

@@ -9,9 +9,9 @@ use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
 /// A command to roll dices.
 pub struct RollCommand;
 
-#[serenity::async_trait]
 #[naming]
 #[db_required(false)]
+#[serenity::async_trait]
 impl BotCommand for RollCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command

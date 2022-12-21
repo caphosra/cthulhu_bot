@@ -53,9 +53,9 @@ static STATUSES: Lazy<Vec<Status>> = Lazy::new(|| {
     ]
 });
 
-#[serenity::async_trait]
 #[naming]
 #[db_required(false)]
+#[serenity::async_trait]
 impl BotCommand for CSCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command.description("Creates a character sheet. | キャラクターシートを作成します.");

@@ -31,9 +31,9 @@ macro_rules! update_param {
     }};
 }
 
-#[serenity::async_trait]
 #[naming]
 #[db_required(true)]
+#[serenity::async_trait]
 impl BotCommand for SetCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command

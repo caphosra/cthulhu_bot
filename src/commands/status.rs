@@ -9,9 +9,9 @@ use crate::database::SizedBotDatabase;
 /// A command that displays the status.
 pub struct StatusCommand;
 
-#[serenity::async_trait]
 #[naming]
 #[db_required(true)]
+#[serenity::async_trait]
 impl BotCommand for StatusCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command.description("Displays your status. | ステータスを表示します.");
