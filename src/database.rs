@@ -11,6 +11,40 @@ pub struct Status {
     pub mp: i16,
 }
 
+impl Status {
+    /// Gets the value by the name.
+    pub fn get_value(&self, name: &str) -> Result<i16, ()> {
+        match name {
+            "HP" => Ok(self.hp),
+            "SAN" => Ok(self.san),
+            "MP" => Ok(self.mp),
+            _ => Err(()),
+        }
+    }
+
+    /// Gets the value by the name.
+    pub fn update_value(&mut self, name: &str, value: i16) -> Result<i16, ()> {
+        match name {
+            "HP" => {
+                let before = self.hp;
+                self.hp = value;
+                Ok(before)
+            }
+            "SAN" => {
+                let before = self.san;
+                self.san = value;
+                Ok(before)
+            }
+            "MP" => {
+                let before = self.mp;
+                self.mp = value;
+                Ok(before)
+            }
+            _ => Err(()),
+        }
+    }
+}
+
 /// Represents a database for the bot.
 ///
 /// A struct that controls database must inherit this trait.

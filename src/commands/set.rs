@@ -10,27 +10,6 @@ use crate::database::SizedBotDatabase;
 /// A command that changes the parameters.
 pub struct SetCommand;
 
-/// A macro that is used inside `update_param`.
-macro_rules! update_param_internal {
-    ($status:tt, $param:tt, $value:expr) => {{
-        let before = $status.$param;
-        $status.$param = $value;
-        before
-    }};
-}
-
-/// Updates a parameter.
-macro_rules! update_param {
-    ($status:tt, $param:expr, $value:expr) => {{
-        match $param {
-            "HP" => update_param_internal!($status, hp, $value),
-            "SAN" => update_param_internal!($status, san, $value),
-            "MP" => update_param_internal!($status, mp, $value),
-            _ => panic!("The parameter isn't valid."),
-        }
-    }};
-}
-
 #[naming]
 #[db_required(true)]
 #[serenity::async_trait]
@@ -81,7 +60,7 @@ impl BotCommand for SetCommand {
 
         match parameter {
             "HP" | "SAN" | "MP" => {
-                let before = update_param!(status, parameter, value);
+                let before = status.update_value(parameter, value).unwrap();
                 data.set_value(user_id, status).await?;
 
                 interaction.send_embed(ctx, |embed| {
