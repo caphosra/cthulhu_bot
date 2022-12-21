@@ -1,53 +1,47 @@
 use anyhow::Result;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::{
-    ApplicationCommandInteraction, ApplicationCommandOptionType,
-};
+use serenity::model::application::command::CommandOptionType;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
-use crate::database::SizedBotDatabase;
+use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command to roll dices.
 pub struct RollCommand;
 
+#[naming]
+#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for RollCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .name("roll")
             .description("Rolls designated dices. | 指定されたダイスを振ります.")
             .create_option(|option| {
                 option
                     .name("dice")
-                    .kind(ApplicationCommandOptionType::String)
-                    .description("An expression to evaluate (ex. `3d4 + 1`) | 振りたいダイス (例: `3d4 + 1`)")
+                    .kind(CommandOptionType::String)
+                    .description("An expression to be evaluated (ex. `3d4 + 1`) | 振りたいダイス (例: `3d4 + 1`)")
                     .required(true)
             })
             .create_option(|option| {
                 option
                     .name("comment")
-                    .kind(ApplicationCommandOptionType::String)
+                    .kind(CommandOptionType::String)
                     .description("A comment | ダイスの説明")
             });
-    }
-
-    fn name(&self) -> &str {
-        "roll"
     }
 
     async fn execute(
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-        _data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>> {
-        let dice = interaction.get_string_option("dice".to_string()).unwrap();
+    ) -> Result<CommandStatus> {
+        let dice = interaction.get_string_option("dice".into()).unwrap();
 
         let comment = interaction
-            .get_string_option("comment".to_string())
+            .get_string_option("comment".into())
             .map(|comment| format!(" for {}", comment))
-            .unwrap_or("".to_string());
+            .unwrap_or_default();
 
         match d20::roll_dice(dice) {
             Ok(result) => {
@@ -66,9 +60,9 @@ impl BotCommand for RollCommand {
                     })
                     .await?;
 
-                Ok(None)
+                Ok(CommandStatus::Ok)
             }
-            Err(err) => Ok(Some(err.to_string())),
+            Err(err) => Ok(CommandStatus::Err(err.to_string())),
         }
     }
 }

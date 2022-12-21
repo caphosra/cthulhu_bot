@@ -1,47 +1,41 @@
 use anyhow::Result;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::{
-    ApplicationCommandInteraction, ApplicationCommandOptionType,
-};
+use serenity::model::application::command::CommandOptionType;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{BotCommand, InteractionUtil, SendEmbed};
-use crate::database::SizedBotDatabase;
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command that does a skill roll.
 pub struct SkillCommand;
 
+#[naming]
+#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for SkillCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .name("skill")
             .description("Attempts a skill roll. In other words, rolls 1d100. | 技能ロールを行います. 1d100を振って判定します.")
             .create_option(|option| {
                 option
                     .name("value")
-                    .kind(ApplicationCommandOptionType::Integer)
+                    .kind(CommandOptionType::Integer)
                     .description("A skill value | 技能値")
                     .required(true)
             })
             .create_option(|option| {
                 option
                     .name("comment")
-                    .kind(ApplicationCommandOptionType::String)
+                    .kind(CommandOptionType::String)
                     .description("A comment | ダイスの説明")
             });
-    }
-
-    fn name(&self) -> &str {
-        "skill"
     }
 
     async fn execute(
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-        _data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let value = interaction.get_int_option("value".to_string()).unwrap();
 
         let comment = interaction
@@ -74,6 +68,6 @@ impl BotCommand for SkillCommand {
             })
             .await?;
 
-        Ok(None)
+        Ok(CommandStatus::Ok)
     }
 }

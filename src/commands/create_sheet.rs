@@ -1,63 +1,90 @@
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::interactions::application_command::ApplicationCommandInteraction;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
-use crate::commands::{AsString, BotCommand, InteractionUtil, SendEmbed};
-use crate::database::SizedBotDatabase;
+use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command that creates a character sheet.
-pub struct CreateSheetCommand;
+pub struct CSCommand;
 
-/// Adds a content to the embed.
-macro_rules! add_content {
-    ($embed:expr, $name:expr, $roll:expr) => {{
-        let result = d20::roll_dice($roll).unwrap();
-        $embed.field(
-            format!("{} {}", $name, result.total),
-            result.as_string(),
-            true,
-        );
-    }};
+/// Represents a status which the character must have.
+struct Status<'l> {
+    pub name: &'l str,
+    pub roll: &'l str,
 }
 
-#[serenity::async_trait]
-impl BotCommand for CreateSheetCommand {
-    fn register(&self, command: &mut CreateApplicationCommand) {
-        command
-            .name("cs")
-            .description("Creates a character sheet. | キャラクターシートを作成します.");
-    }
+/// A list of the statuses required.
+static STATUSES: Lazy<Vec<Status>> = Lazy::new(|| {
+    vec![
+        Status {
+            name: ":dagger: STR",
+            roll: "3d6",
+        },
+        Status {
+            name: ":umbrella: CON",
+            roll: "3d6",
+        },
+        Status {
+            name: ":heart: POW",
+            roll: "3d6",
+        },
+        Status {
+            name: ":dash: DEX",
+            roll: "3d6",
+        },
+        Status {
+            name: ":star: APP",
+            roll: "3d6",
+        },
+        Status {
+            name: ":elephant: SIZ",
+            roll: "2d6+6",
+        },
+        Status {
+            name: ":bulb: INT",
+            roll: "2d6+6",
+        },
+        Status {
+            name: ":books: EDU",
+            roll: "3d6+3",
+        },
+    ]
+});
 
-    fn name(&self) -> &str {
-        "cs"
+#[naming]
+#[db_required(false)]
+#[serenity::async_trait]
+impl BotCommand for CSCommand {
+    fn register(&self, command: &mut CreateApplicationCommand) {
+        command.description("Creates a character sheet. | キャラクターシートを作成します.");
     }
 
     async fn execute(
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
-        _data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>> {
+    ) -> Result<CommandStatus> {
         let author = interaction.get_nickname();
 
         interaction
             .send_embed(ctx, |embed| {
                 embed.title(format!("{}'s character", author));
 
-                add_content!(embed, ":dagger: STR", "3d6");
-                add_content!(embed, ":umbrella: CON", "3d6");
-                add_content!(embed, ":heart: POW", "3d6");
-                add_content!(embed, ":dash: DEX", "3d6");
-                add_content!(embed, ":star: APP", "3d6");
-                add_content!(embed, ":elephant: SIZ", "2d6+6");
-                add_content!(embed, ":bulb: INT", "2d6+6");
-                add_content!(embed, ":books: EDU", "3d6+3");
+                for status in STATUSES.iter() {
+                    let result = d20::roll_dice(status.roll).unwrap();
+                    embed.field(
+                        format!("{} {}", status.name, result.total),
+                        result.as_string(),
+                        true,
+                    );
+                }
 
                 embed
             })
             .await?;
 
-        Ok(None)
+        Ok(CommandStatus::Ok)
     }
 }

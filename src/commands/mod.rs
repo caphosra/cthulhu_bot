@@ -2,17 +2,25 @@ use anyhow::Result;
 use d20::Roll;
 use once_cell::sync::Lazy;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
-use serenity::model::interactions::application_command::{
-    ApplicationCommand, ApplicationCommandInteraction,
-};
+use serenity::model::application::command::Command;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::{Context, Mutex};
 use serenity::utils::Color;
 
 use crate::commands::choose::ChooseCommand;
-use crate::commands::create_sheet::CreateSheetCommand;
+use crate::commands::create_sheet::CSCommand;
 use crate::commands::roll::RollCommand;
+use crate::commands::set::SetCommand;
 use crate::commands::skill::SkillCommand;
+use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
+
+/// Represents a handled result of the command.
+/// Note that you cannot use this for internal errors.
+pub enum CommandStatus {
+    Ok,
+    Err(String),
+}
 
 /// Represents a bot command.
 #[serenity::async_trait]
@@ -23,22 +31,27 @@ pub trait BotCommand {
     /// Gets a name of the command.
     fn name(&self) -> &str;
 
+    /// Returns whether the command depends on a database.
+    fn use_db(&self) -> bool;
+
     /// Executes the command.
     async fn execute(
         &self,
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
-    ) -> Result<Option<String>>;
+    ) -> Result<CommandStatus>;
 }
 
 /// The commands which can be invoked through the bot.
 static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy::new(|| {
     vec![
         Box::new(ChooseCommand),
-        Box::new(CreateSheetCommand),
+        Box::new(CSCommand),
         Box::new(RollCommand),
         Box::new(SkillCommand),
+        Box::new(SetCommand),
+        Box::new(StatusCommand),
     ]
 });
 
@@ -47,17 +60,21 @@ pub struct BotCommandManager;
 
 impl BotCommandManager {
     /// Registers all commands to Discord.
-    pub async fn register_all(ctx: &Context) -> Result<()> {
-        ApplicationCommand::set_global_application_commands(ctx, |builder| {
+    pub async fn register_all(ctx: &Context, db_available: bool) -> Result<()> {
+        Command::set_global_application_commands(ctx, |builder| {
             let commands = REGISTERED_COMMANDS
                 .iter()
-                .map(|command| {
-                    let mut builder = CreateApplicationCommand::default();
-                    command.register(&mut builder);
+                .filter_map(|command| {
+                    if db_available || !command.use_db() {
+                        let mut builder = CreateApplicationCommand::default();
+                        command.register(&mut builder);
 
-                    println!("[BOT LOG] Registered /{}.", command.name());
+                        println!("[BOT LOG] Registered /{}.", command.name());
 
-                    builder
+                        Some(builder)
+                    } else {
+                        None
+                    }
                 })
                 .collect();
             builder.set_application_commands(commands)
@@ -79,7 +96,7 @@ impl BotCommandManager {
             if command.name() == interaction.data.name {
                 let result = command.execute(ctx, interaction, data).await?;
 
-                if let Some(message) = result {
+                if let CommandStatus::Err(message) = result {
                     Self::reply_error(ctx, interaction, message).await?;
                 };
             }
@@ -195,4 +212,6 @@ impl AsString for Roll {
 pub mod choose;
 pub mod create_sheet;
 pub mod roll;
+pub mod set;
 pub mod skill;
+pub mod status;

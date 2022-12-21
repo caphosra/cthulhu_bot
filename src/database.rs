@@ -11,11 +11,48 @@ pub struct Status {
     pub mp: i16,
 }
 
+impl Status {
+    /// Gets the value by the name.
+    pub fn get_value(&self, name: &str) -> Result<i16, ()> {
+        match name {
+            "HP" => Ok(self.hp),
+            "SAN" => Ok(self.san),
+            "MP" => Ok(self.mp),
+            _ => Err(()),
+        }
+    }
+
+    /// Gets the value by the name.
+    pub fn update_value(&mut self, name: &str, value: i16) -> Result<i16, ()> {
+        match name {
+            "HP" => {
+                let before = self.hp;
+                self.hp = value;
+                Ok(before)
+            }
+            "SAN" => {
+                let before = self.san;
+                self.san = value;
+                Ok(before)
+            }
+            "MP" => {
+                let before = self.mp;
+                self.mp = value;
+                Ok(before)
+            }
+            _ => Err(()),
+        }
+    }
+}
+
 /// Represents a database for the bot.
 ///
 /// A struct that controls database must inherit this trait.
 #[serenity::async_trait]
 pub trait BotDatabase {
+    // Checks whether all of the features are ready.
+    fn is_available(&self) -> bool;
+
     /// Tries to get the status. If failed, it returns `None`.
     async fn try_get_value(&self, id: u64) -> Option<Status>;
 
@@ -34,12 +71,16 @@ pub struct DummyDatabase;
 
 #[serenity::async_trait]
 impl BotDatabase for DummyDatabase {
+    fn is_available(&self) -> bool {
+        false
+    }
+
     async fn try_get_value(&self, _id: u64) -> Option<Status> {
-        None
+        panic!("This function is not implemented.")
     }
 
     async fn get_value(&self, _id: u64) -> Status {
-        Status::default()
+        panic!("This function is not implemented.")
     }
 
     async fn set_value(&self, _id: u64, _status: Status) -> Result<()> {
@@ -54,6 +95,10 @@ pub struct PgDatabase {
 
 #[serenity::async_trait]
 impl BotDatabase for PgDatabase {
+    fn is_available(&self) -> bool {
+        true
+    }
+
     async fn try_get_value(&self, id: u64) -> Option<Status> {
         sqlx::query_as::<_, Status>("SELECT * FROM PlayerStatus WHERE id=$1")
             .bind(id.to_string())
