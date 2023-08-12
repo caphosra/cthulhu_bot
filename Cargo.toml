@@ -18,3 +18,4 @@ serenity = { version = "0.11", default-features = false, features = ["client", "
 sqlx = { version = "0.7", features = [ "runtime-tokio-native-tls" , "postgres" ] }
 tokio = { version = "1.30", features = ["rt-multi-thread"] }
 cmd_macro = { path = "cmd_macro" }
+chrono = "0.4"
