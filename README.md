@@ -57,3 +57,5 @@ Command: `/cs`
 ## Memo
 
 Inspired by [Sidekick](https://github.com/ArtemGr/Sidekick), which is no longer available.
+
+If you find a security threat to this bot or have some requests, feel free to contact caphosra[at]gmail.com
