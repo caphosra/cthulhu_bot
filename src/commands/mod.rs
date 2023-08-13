@@ -14,6 +14,7 @@ use crate::commands::set::SetCommand;
 use crate::commands::skill::SkillCommand;
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
+use crate::log;
 
 /// Represents a handled result of the command.
 /// Note that you cannot use this for internal errors.
@@ -69,7 +70,11 @@ impl BotCommandManager {
                         let mut builder = CreateApplicationCommand::default();
                         command.register(&mut builder);
 
-                        println!("[BOT LOG] Registered /{}.", command.name());
+                        tokio::spawn({
+                            async move {
+                                log!(LOG, format!("Registered /{}.", command.name()));
+                            }
+                        });
 
                         Some(builder)
                     } else {
@@ -81,7 +86,7 @@ impl BotCommandManager {
         })
         .await?;
 
-        println!("[BOT LOG] Registered all commands.");
+        log!(LOG, "Registered all commands.".to_string());
 
         Ok(())
     }

@@ -3,6 +3,8 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::Pool;
 use sqlx::Postgres;
 
+use crate::log;
+
 /// A user status.
 #[derive(Default, sqlx::FromRow)]
 pub struct Status {
@@ -144,7 +146,7 @@ impl PgDatabase {
             .connect(uri)
             .await?;
 
-        println!("[BOT LOG] Connected to the database.");
+        log!(LOG, "Connected to the database.".to_string());
 
         Ok(Self { pool })
     }

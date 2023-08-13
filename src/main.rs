@@ -9,8 +9,8 @@ use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
 
 use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
-use crate::error::DisplayErr;
 use crate::handler::BotHandler;
+use crate::logging::Logger;
 
 /// A database that contains users information.
 pub static DATABASE: Lazy<Mutex<SizedBotDatabase>> =
@@ -21,19 +21,23 @@ pub const STATUS_MESSAGE: &str = "Call of Cthulhu";
 
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
+    // Load the environmental variables.
+    let token = env::var("DISCORD_TOKEN")?;
+
+    // Connect to the database.
     if let Ok(database_url) = env::var("DATABASE_URL") {
         let database = PgDatabase::init(&database_url).await?;
 
         let mut db = DATABASE.lock().await;
         *db = Box::new(database);
 
-        println!("[BOT LOG] Initialized the database.")
+        log!(LOG, "Initialized the database.".to_string());
     } else {
-        println!("[BOT LOG] Is going to run without the database.")
+        log!(
+            LOG,
+            "No DATABASE_URL is provided.\nGoing to run without the database.".to_string()
+        );
     }
-
-    // Load the environmental variables.
-    let token = env::var("DISCORD_TOKEN")?;
 
     // Build a client.
     let intents = GatewayIntents::empty();
@@ -49,11 +53,13 @@ async fn start_bot() -> Result<()> {
 
 #[tokio::main]
 async fn main() {
+    Logger::init().await;
+
     let result = start_bot().await;
-    result.eprint_all();
+    Logger::log_err(&result).await;
 }
 
 pub mod commands;
 pub mod database;
-pub mod error;
 pub mod handler;
+pub mod logging;

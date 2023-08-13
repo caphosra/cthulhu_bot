@@ -3,7 +3,8 @@ use serenity::model::prelude::{Activity, Ready};
 use serenity::prelude::{Context, EventHandler};
 
 use crate::commands::BotCommandManager;
-use crate::error::DisplayErr;
+use crate::log;
+use crate::logging::Logger;
 use crate::{DATABASE, STATUS_MESSAGE};
 
 /// An event handler for the bot.
@@ -16,16 +17,16 @@ impl EventHandler for BotHandler {
 
         let db = DATABASE.lock().await;
         let result = BotCommandManager::register_all(&ctx, db.is_available()).await;
-        result.eprint_all();
+        Logger::log_err(&result).await;
 
-        println!("[BOT LOG] {} is ready.", ready.user.name);
+        log!(LOG, format!("{} is ready.", ready.user.name));
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if interaction.kind() == InteractionType::ApplicationCommand {
             let interaction = interaction.application_command().unwrap();
             let result = BotCommandManager::run_command(&ctx, &interaction, &DATABASE).await;
-            result.eprint_all();
+            Logger::log_err(&result).await;
         }
     }
 }
