@@ -43,10 +43,10 @@ impl Logger {
     /// Opens the log file and assign its handle to `LOG_FILE`.
     pub async fn init() {
         if let Ok(log_path) = env::var("LOG_PATH") {
-            let file = File::open(log_path);
+            let file = File::create(log_path);
             match file {
                 Ok(file) => {
-                    let mut log_file = LOG_FILE.blocking_lock();
+                    let mut log_file = LOG_FILE.lock().await;
                     *log_file = Box::new(Some(file));
                 }
                 Err(err) => log!(ERROR, "{}", err),
@@ -105,8 +105,14 @@ impl Logger {
             loop {
                 let counter = EVENT_COUNTERS.lock().await;
                 let mut text = "Daily report\n".to_string();
-                for (key, value) in counter.iter() {
-                    text += format!(" {}: {}\n", key, value).as_str();
+                if counter.len() == 0 {
+                    text += ">> Nothing";
+                } else {
+                    text += &counter
+                        .iter()
+                        .map(|(key, value)| format!(">> {}: {}\n", key, value))
+                        .collect::<Vec<_>>()
+                        .concat();
                 }
                 log!(LOG, "{}", text);
 
