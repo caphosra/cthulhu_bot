@@ -2,6 +2,7 @@
 extern crate cmd_macro;
 
 use std::env;
+use std::io::{Error, ErrorKind};
 
 use anyhow::Result;
 use once_cell::sync::Lazy;
@@ -22,7 +23,8 @@ pub const STATUS_MESSAGE: &str = "Call of Cthulhu";
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
     // Load the environmental variables.
-    let token = env::var("DISCORD_TOKEN")?;
+    let token = env::var("DISCORD_TOKEN")
+        .map_err(|_| Error::new(ErrorKind::Other, "Failed to get DISCORD_TOKEN."))?;
 
     // Connect to the database.
     if let Ok(database_url) = env::var("DATABASE_URL") {
