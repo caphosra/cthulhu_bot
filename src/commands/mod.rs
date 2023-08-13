@@ -14,6 +14,8 @@ use crate::commands::set::SetCommand;
 use crate::commands::skill::SkillCommand;
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
+use crate::log;
+use crate::logging::EVENT_COUNTERS;
 
 /// Represents a handled result of the command.
 /// Note that you cannot use this for internal errors.
@@ -69,7 +71,9 @@ impl BotCommandManager {
                         let mut builder = CreateApplicationCommand::default();
                         command.register(&mut builder);
 
-                        println!("[BOT LOG] Registered /{}.", command.name());
+                        tokio::spawn(async move {
+                            log!(LOG, "Registered /{}.", command.name());
+                        });
 
                         Some(builder)
                     } else {
@@ -81,7 +85,7 @@ impl BotCommandManager {
         })
         .await?;
 
-        println!("[BOT LOG] Registered all commands.");
+        log!(LOG, "Registered all commands.");
 
         Ok(())
     }
@@ -92,14 +96,33 @@ impl BotCommandManager {
         interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
     ) -> Result<()> {
+        let mut command_executed = false;
         for command in REGISTERED_COMMANDS.iter() {
-            if command.name() == interaction.data.name {
+            let name = &interaction.data.name;
+            if command.name() == name {
+                if command_executed {
+                    log!(ERROR, "Some commands are duplicated.");
+                    return Ok(());
+                }
+                command_executed = true;
+
                 let result = command.execute(ctx, interaction, data).await?;
+
+                let mut counter = EVENT_COUNTERS.lock().await;
+                let command_counter = counter.get_mut(name);
+                if let Some(counter) = command_counter {
+                    *counter += 1;
+                } else {
+                    counter.insert(name.clone(), 1);
+                }
 
                 if let CommandStatus::Err(message) = result {
                     Self::reply_error(ctx, interaction, message).await?;
                 };
             }
+        }
+        if !command_executed {
+            log!(ERROR, "Tried to execute an unknown command.");
         }
         Ok(())
     }

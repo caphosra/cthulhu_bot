@@ -2,6 +2,7 @@
 extern crate cmd_macro;
 
 use std::env;
+use std::io::{Error, ErrorKind};
 
 use anyhow::Result;
 use once_cell::sync::Lazy;
@@ -9,8 +10,8 @@ use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
 
 use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
-use crate::error::DisplayErr;
 use crate::handler::BotHandler;
+use crate::logging::Logger;
 
 /// A database that contains users information.
 pub static DATABASE: Lazy<Mutex<SizedBotDatabase>> =
@@ -21,19 +22,22 @@ pub const STATUS_MESSAGE: &str = "Call of Cthulhu";
 
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
+    // Load the environmental variables.
+    let token = env::var("DISCORD_TOKEN")
+        .map_err(|_| Error::new(ErrorKind::Other, "Failed to get DISCORD_TOKEN."))?;
+
+    // Connect to the database.
     if let Ok(database_url) = env::var("DATABASE_URL") {
         let database = PgDatabase::init(&database_url).await?;
 
         let mut db = DATABASE.lock().await;
         *db = Box::new(database);
 
-        println!("[BOT LOG] Initialized the database.")
+        log!(LOG, "Initialized the database.");
     } else {
-        println!("[BOT LOG] Is going to run without the database.")
+        log!(WARN, "No DATABASE_URL is provided.");
+        log!(LOG, "Going to run without the database.");
     }
-
-    // Load the environmental variables.
-    let token = env::var("DISCORD_TOKEN")?;
 
     // Build a client.
     let intents = GatewayIntents::empty();
@@ -49,11 +53,15 @@ async fn start_bot() -> Result<()> {
 
 #[tokio::main]
 async fn main() {
+    Logger::init().await;
+
+    Logger::publish_daily_reports();
+
     let result = start_bot().await;
-    result.eprint_all();
+    Logger::log_err(&result).await;
 }
 
 pub mod commands;
 pub mod database;
-pub mod error;
 pub mod handler;
+pub mod logging;
