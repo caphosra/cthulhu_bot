@@ -72,7 +72,7 @@ impl BotCommandManager {
 
                         tokio::spawn({
                             async move {
-                                log!(LOG, format!("Registered /{}.", command.name()));
+                                log!(LOG, "Registered /{}.", command.name());
                             }
                         });
 
@@ -86,7 +86,7 @@ impl BotCommandManager {
         })
         .await?;
 
-        log!(LOG, "Registered all commands.".to_string());
+        log!(LOG, "Registered all commands.");
 
         Ok(())
     }
@@ -97,14 +97,24 @@ impl BotCommandManager {
         interaction: &ApplicationCommandInteraction,
         data: &Mutex<SizedBotDatabase>,
     ) -> Result<()> {
+        let mut command_executed = false;
         for command in REGISTERED_COMMANDS.iter() {
             if command.name() == interaction.data.name {
+                if command_executed {
+                    log!(ERROR, "Some commands are duplicated.");
+                    return Ok(());
+                }
+                command_executed = true;
+
                 let result = command.execute(ctx, interaction, data).await?;
 
                 if let CommandStatus::Err(message) = result {
                     Self::reply_error(ctx, interaction, message).await?;
                 };
             }
+        }
+        if !command_executed {
+            log!(ERROR, "Tried to execute an unknown command.");
         }
         Ok(())
     }

@@ -47,7 +47,7 @@ impl BotCommand for SetCommand {
 
         if value > 32767 || value < 0 {
             return Ok(CommandStatus::Err(
-                "You must provide the value between 0 and 32767. | 値は 0以上 32767以下 にしてください."
+                "You must provide a value between 0 and 32767. | 値は 0以上 32767以下 にしてください."
                     .to_string(),
             ));
         }

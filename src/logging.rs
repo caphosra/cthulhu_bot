@@ -29,8 +29,8 @@ pub static LOG_FILE: Lazy<Mutex<Box<Option<File>>>> = Lazy::new(|| Mutex::new(Bo
 
 #[macro_export]
 macro_rules! log {
-    ($kind:ident, $text:expr) => {
-        crate::logging::Logger::log(crate::logging::LogKind::$kind, $text).await
+    ($kind:ident, $($text:expr),*) => {
+        crate::logging::Logger::log(crate::logging::LogKind::$kind, format!($($text),*)).await
     };
 }
 
@@ -47,10 +47,10 @@ impl Logger {
                     let mut log_file = LOG_FILE.blocking_lock();
                     *log_file = Box::new(Some(file));
                 }
-                Err(err) => log!(ERROR, err.to_string()),
+                Err(err) => log!(ERROR, "{}", err),
             }
         } else {
-            log!(ERROR, "Failed to get LOG_PATH.".to_string());
+            log!(ERROR, "Failed to get LOG_PATH.");
         }
     }
 
@@ -80,7 +80,7 @@ impl Logger {
         }
     }
 
-    ///
+    /// Emits error logs.
     pub async fn log_err(result: &Result<()>) {
         if let Err(err) = result {
             let text = err.to_string()

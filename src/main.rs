@@ -31,12 +31,10 @@ async fn start_bot() -> Result<()> {
         let mut db = DATABASE.lock().await;
         *db = Box::new(database);
 
-        log!(LOG, "Initialized the database.".to_string());
+        log!(LOG, "Initialized the database.");
     } else {
-        log!(
-            LOG,
-            "No DATABASE_URL is provided.\nGoing to run without the database.".to_string()
-        );
+        log!(WARN, "No DATABASE_URL is provided.");
+        log!(LOG, "Going to run without the database.");
     }
 
     // Build a client.

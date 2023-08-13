@@ -146,7 +146,7 @@ impl PgDatabase {
             .connect(uri)
             .await?;
 
-        log!(LOG, "Connected to the database.".to_string());
+        log!(LOG, "Connected to the database.");
 
         Ok(Self { pool })
     }

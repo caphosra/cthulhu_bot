@@ -19,7 +19,7 @@ impl EventHandler for BotHandler {
         let result = BotCommandManager::register_all(&ctx, db.is_available()).await;
         Logger::log_err(&result).await;
 
-        log!(LOG, format!("{} is ready.", ready.user.name));
+        log!(LOG, "{} is ready.", ready.user.name);
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
