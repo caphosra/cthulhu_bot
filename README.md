@@ -1,30 +1,58 @@
 # Unofficial Cthulhu Bot
 
-[![GitHub issues](https://img.shields.io/github/issues/capra314cabra/cthulhu_bot)](https://github.com/capra314cabra/cthulhu_bot/issues)
+[![Test](https://github.com/caphosra/cthulhu_bot/actions/workflows/test.yml/badge.svg)](https://github.com/caphosra/cthulhu_bot/actions/workflows/test.yml)
+[![Build](https://github.com/caphosra/cthulhu_bot/actions/workflows/build.yml/badge.svg)](https://github.com/caphosra/cthulhu_bot/actions/workflows/build.yml)
+[![GitHub issues](https://img.shields.io/github/issues/caphosra/cthulhu_bot)](https://github.com/caphosra/cthulhu_bot/issues)
 
 <p align="center">
-    <img width="500" height="400" src="https://raw.githubusercontent.com/capra314cabra/cthulhu_bot/master/img/icon.png">
+    <img width="500" height="400" src="https://raw.githubusercontent.com/caphosra/cthulhu_bot/master/img/icon.png">
 </p>
 
-An unofficial Discord bot which helps you to play Cthulhu TRPG.
+This bot emulates dice rolling. It is tuned for CoC, but you can use this for general purposes.
 
-**Please note that Chaosium Inc. owns the copyright of Cthulhu TRPG.**
+**Note that  Chaosium Inc. owns the copyright of Call of Cthulhu.**
 
-[Invite this bot!](https://discord.com/api/oauth2/authorize?client_id=811123481370558505&permissions=380104853568&scope=applications.commands%20bot)
+[Invite this bot!](https://discord.com/api/oauth2/authorize?client_id=811123481370558505&permissions=277025572928&scope=bot%20applications.commands)
 
 ## Commands available
 
 - `<arg>` : An argument required.
 - `[arg]` : An argument not required.
 
-|Command|Description|
-|:---|:---|
-|`/roll [limit] #[Comment]`|Roll a `d100` dice and judge the result whether it is succeeded or not.|
-|`/r [limit] #[Comment]`|Equal to `/roll`.|
-|`/custom_roll <expression> #[Comment]`|Evaluate the expression given. Use [dice-expression-evaluator](https://github.com/dbkang/dice-expression-evaluator) internally.|
-|`/cr <expression> #[Comment]`|Equal to `/custom_roll`.|
-|`/create_sheet #[Comment]`|Create a character sheet by rolling dices.|
-|`/cs #[Comment]`|Equal to `/create_sheet`.|
+The bot hosted by the owner is DB-free. If you want to use not DB-free features, you should host this bot by yourself.
+
+|Command|DB-free|Description|
+|:---|:---:|:---|
+|`/choose <choice A, choice B, ...>`|:white_check_mark:|Makes a random choice.|
+|`/cs`|:white_check_mark:|Creates a character sheet.|
+|`/roll <dice> [comment]`|:white_check_mark:|Rolls designated dices. Expressions supported by [d20](https://github.com/pholactery/d20) can be used.|
+|`/set <param> <value>`||Assigns a value to your parameter.|
+|`/skill <value> [comment]`|:white_check_mark:|Attempts a skill roll. In other words, rolls 1d100.|
+|`/status`||Displays your status.|
+
+### Roll dices
+
+Command: `/roll` dice:`3d5 + 2d4`
+
+<p align="center">
+    <img width="250" height="122" src="https://raw.githubusercontent.com/caphosra/cthulhu_bot/master/img/01.png">
+</p>
+
+### Attempts a skill roll.
+
+Command: `/skill` value:`50` comment:`Listen`
+
+<p align="center">
+    <img width="250" height="120" src="https://raw.githubusercontent.com/caphosra/cthulhu_bot/master/img/02.png">
+</p>
+
+### Create a character sheet
+
+Command: `/cs`
+
+<p align="center">
+    <img width="250" height="171" src="https://raw.githubusercontent.com/caphosra/cthulhu_bot/master/img/03.png">
+</p>
 
 ## Memo
 
