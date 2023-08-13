@@ -53,6 +53,8 @@ async fn start_bot() -> Result<()> {
 async fn main() {
     Logger::init().await;
 
+    Logger::publish_daily_reports();
+
     let result = start_bot().await;
     Logger::log_err(&result).await;
 }

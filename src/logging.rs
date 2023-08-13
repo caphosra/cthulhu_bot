@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::Write;
@@ -6,6 +7,7 @@ use anyhow::Result;
 use chrono::prelude::Local;
 use once_cell::sync::Lazy;
 use serenity::prelude::Mutex;
+use tokio::time::Duration;
 
 /// A kind of the log.
 pub enum LogKind {
@@ -94,4 +96,30 @@ impl Logger {
             Logger::log(LogKind::ERROR, text).await
         }
     }
+
+    /// Publishes a report of the events everyday.
+    pub fn publish_daily_reports() {
+        tokio::spawn(async {
+            log!(LOG, "The daily report system is now enabled.");
+
+            loop {
+                let counter = EVENT_COUNTERS.lock().await;
+                let mut text = "Daily report\n".to_string();
+                for (key, value) in counter.iter() {
+                    text += format!(" {}: {}\n", key, value).as_str();
+                }
+                log!(LOG, "{}", text);
+
+                let mut counter = EVENT_COUNTERS.lock().await;
+                *counter = HashMap::new();
+                log!(LOG, "Initialize the event counters.");
+
+                tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
+            }
+        });
+    }
 }
+
+/// Counters of the events.
+pub static EVENT_COUNTERS: Lazy<Mutex<HashMap<String, u32>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
