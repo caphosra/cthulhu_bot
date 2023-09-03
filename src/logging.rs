@@ -63,7 +63,10 @@ impl Logger {
         let date = Local::now().to_rfc3339();
         let text = text
             .lines()
-            .map(|line| format!("{} [{}] {}\n", date, kind.to_string(), line))
+            .map(|line| {
+                let kind = format!("[{}]", kind.to_string());
+                format!("{:35} {:7} {}\n", date, kind, line)
+            })
             .collect::<Vec<_>>()
             .concat();
 
@@ -90,7 +93,7 @@ impl Logger {
                 + &err
                     .chain()
                     .skip(1)
-                    .map(|line| format!(" because: {}\n", line))
+                    .map(|line| format!("  because: {}\n", line))
                     .collect::<Vec<_>>()
                     .concat();
             Logger::log(LogKind::ERROR, text).await
@@ -103,23 +106,23 @@ impl Logger {
             log!(LOG, "The daily report system is now enabled.");
 
             loop {
-                let counter = EVENT_COUNTERS.lock().await;
-                let mut text = "Daily report\n".to_string();
-                if counter.len() == 0 {
-                    text += ">> Nothing";
-                } else {
-                    text += &counter
-                        .iter()
-                        .map(|(key, value)| format!(">> {}: {}\n", key, value))
-                        .collect::<Vec<_>>()
-                        .concat();
+                {
+                    let mut counter = EVENT_COUNTERS.lock().await;
+                    let mut text = "Daily report\n".to_string();
+                    if counter.len() == 0 {
+                        text += "  Nothing";
+                    } else {
+                        text += &counter
+                            .iter()
+                            .map(|(key, value)| format!("  {}: {}\n", key, value))
+                            .collect::<Vec<_>>()
+                            .concat();
+                    }
+                    log!(LOG, "{}", text);
+
+                    *counter = HashMap::new();
+                    log!(LOG, "Initialize the event counters.");
                 }
-                log!(LOG, "{}", text);
-
-                let mut counter = EVENT_COUNTERS.lock().await;
-                *counter = HashMap::new();
-                log!(LOG, "Initialize the event counters.");
-
                 tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
             }
         });
