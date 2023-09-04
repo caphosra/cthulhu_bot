@@ -11,7 +11,7 @@ use crate::commands::choose::ChooseCommand;
 use crate::commands::create_sheet::CSCommand;
 use crate::commands::roll::RollCommand;
 use crate::commands::set::SetCommand;
-use crate::commands::skill::{Sk5Command, Sk7Command, SkDGCommand, SkillCommand};
+use crate::commands::skill::{Sk5Command, Sk7Command, SkBRPCommand, SkDGCommand, SkillCommand};
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
 use crate::log;
@@ -54,6 +54,7 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
         Box::new(Sk5Command),
         Box::new(Sk7Command),
         Box::new(SkDGCommand),
+        Box::new(SkBRPCommand),
         Box::new(SkillCommand),
         Box::new(SetCommand),
         Box::new(StatusCommand),
