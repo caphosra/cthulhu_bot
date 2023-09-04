@@ -15,6 +15,9 @@ pub struct Sk5Command;
 /// A command that does a skill roll. It follows Call of Cthulhu 7th Edition.
 pub struct Sk7Command;
 
+/// A command that does a skill roll. It follows Delta Green.
+pub struct SkDGCommand;
+
 impl SkillCommand {
     /// Does a skill roll following the rule of Call of Cthulhu 5th Edition.
     async fn execute_5th(
@@ -82,6 +85,48 @@ impl SkillCommand {
             ),
             result if result == 100 || (result > 95 && value < 50) => {
                 (":skull: **Fumble!**", format!("{} >= {}", result, value))
+            }
+            result if result <= value => (":o: **Success**", format!("{} <= {}", result, value)),
+            result => (":x: **Failed**", format!("{} > {}", result, value)),
+        };
+
+        interaction
+            .send_embed(ctx, |embed| {
+                embed.title(format!("{} uses {}", interaction.get_nickname(), comment));
+                embed.field(result, roll, false)
+            })
+            .await?;
+
+        Ok(CommandStatus::Ok)
+    }
+
+    async fn execute_dg(
+        ctx: &Context,
+        interaction: &ApplicationCommandInteraction,
+    ) -> Result<CommandStatus> {
+        let value = interaction.get_int_option("value".to_string()).unwrap();
+
+        let comment = interaction
+            .get_string_option("comment".to_string())
+            .unwrap_or("a skill");
+
+        let (result, roll) = match d20::roll_dice("1d100").unwrap().total {
+            result if (result == 1 && result <= value) => (
+                ":star::crown::star: **Critical!!!**",
+                format!("1 <= {}", value),
+            ),
+            result if result <= 5 && (result <= value) => {
+                (":crown: **Critical!**", format!("{} <= {}", result, value))
+            }
+            result if result / 10 == result % 10 && result <= value => {
+                (":crown: **Critical!**", format!("{} <= {}", result, value))
+            },
+            result if result == 100 && (result > value) => (
+                ":fire::skull::fire: **Fumble!!!**",
+                format!("100 > {}", value),
+            ),
+            result if result > 95 && (result > value) => {
+                (":skull: **Fumble!**", format!("{} > {}", result, value))
             }
             result if result <= value => (":o: **Success**", format!("{} <= {}", result, value)),
             result => (":x: **Failed**", format!("{} > {}", result, value)),
@@ -188,5 +233,36 @@ impl BotCommand for Sk7Command {
         interaction: &ApplicationCommandInteraction,
     ) -> Result<CommandStatus> {
         SkillCommand::execute_7th(ctx, interaction).await
+    }
+}
+
+#[naming]
+#[db_required(false)]
+#[serenity::async_trait]
+impl BotCommand for SkDGCommand {
+    fn register(&self, command: &mut CreateApplicationCommand) {
+        command
+            .description("Does a skill roll following the rule of Delta Green. | Delta Greenのルールに基づいて技能ロールを行います.")
+            .create_option(|option| {
+                option
+                    .name("value")
+                    .kind(CommandOptionType::Integer)
+                    .description("A skill value | 技能値")
+                    .required(true)
+            })
+            .create_option(|option| {
+                option
+                    .name("comment")
+                    .kind(CommandOptionType::String)
+                    .description("A comment | ダイスの説明")
+            });
+    }
+
+    async fn execute(
+        &self,
+        ctx: &Context,
+        interaction: &ApplicationCommandInteraction,
+    ) -> Result<CommandStatus> {
+        SkillCommand::execute_dg(ctx, interaction).await
     }
 }
