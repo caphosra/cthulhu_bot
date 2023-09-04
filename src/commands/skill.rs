@@ -6,11 +6,11 @@ use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
-/// A command that does a skill roll. It follows Call of Cthulhu 5th Edition.
+/// A command that does a skill roll. It follows Call of Cthulhu 6th Edition.
 pub struct SkillCommand;
 
-/// A command that does a skill roll. It follows Call of Cthulhu 5th Edition.
-pub struct Sk5Command;
+/// A command that does a skill roll. It follows Call of Cthulhu 6th Edition.
+pub struct Sk6Command;
 
 /// A command that does a skill roll. It follows Call of Cthulhu 7th Edition.
 pub struct Sk7Command;
@@ -22,8 +22,8 @@ pub struct SkDGCommand;
 pub struct SkBRPCommand;
 
 impl SkillCommand {
-    /// Does a skill roll following the rule of Call of Cthulhu 5th Edition.
-    async fn execute_5th(
+    /// Does a skill roll following the rule of Call of Cthulhu 6th Edition.
+    async fn execute_6th(
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
     ) -> Result<CommandStatus> {
@@ -187,7 +187,7 @@ impl SkillCommand {
 impl BotCommand for SkillCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .description("Does a skill roll following the Call of Cthulhu 5th Edition. `/sk5` is the same. | 第5版のルールに基づいて技能ロールを行います. `/sk5`と同じ動きをします.")
+            .description("Does a skill roll following the Call of Cthulhu 6th Edition. `/sk6` is the same. | 第6版のルールに基づいて技能ロールを行います. `/sk6`と同じ動きをします.")
             .create_option(|option| {
                 option
                     .name("chance")
@@ -208,17 +208,17 @@ impl BotCommand for SkillCommand {
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
     ) -> Result<CommandStatus> {
-        Self::execute_5th(ctx, interaction).await
+        Self::execute_6th(ctx, interaction).await
     }
 }
 
 #[naming]
 #[db_required(false)]
 #[serenity::async_trait]
-impl BotCommand for Sk5Command {
+impl BotCommand for Sk6Command {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .description("Does a skill roll following the Call of Cthulhu 5th Edition. | 第5版のルールに基づいて技能ロールを行います.")
+            .description("Does a skill roll following the Call of Cthulhu 6th Edition. | 第6版のルールに基づいて技能ロールを行います.")
             .create_option(|option| {
                 option
                     .name("chance")
@@ -239,7 +239,7 @@ impl BotCommand for Sk5Command {
         ctx: &Context,
         interaction: &ApplicationCommandInteraction,
     ) -> Result<CommandStatus> {
-        SkillCommand::execute_5th(ctx, interaction).await
+        SkillCommand::execute_6th(ctx, interaction).await
     }
 }
 
