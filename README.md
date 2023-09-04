@@ -27,7 +27,11 @@ The bot hosted by the owner is DB-free. If you want to use not DB-free features,
 |`/cs`|:white_check_mark:|Creates a character sheet.|
 |`/roll <dice> [comment]`|:white_check_mark:|Rolls designated dices. Expressions supported by [d20](https://github.com/pholactery/d20) can be used.|
 |`/set <param> <value>`||Assigns a value to your parameter.|
-|`/skill <value> [comment]`|:white_check_mark:|Attempts a skill roll. In other words, rolls 1d100.|
+|`/skill <value> [comment]`|:white_check_mark:|Does a skill roll. `/sk6` is the same.|
+|`/sk6 <value> [comment]`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 6th Edition.|
+|`/sk7 <value> [comment]`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 7th Edition.|
+|`/skdg <value> [comment]`|:white_check_mark:|Does a skill roll following the Delta Green.|
+|`/skbrp <value> [comment]`|:white_check_mark:|Does a skill roll following the BRP 2023.|
 |`/status`||Displays your status.|
 
 ### Roll dices
