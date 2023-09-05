@@ -187,7 +187,7 @@ impl SkillCommand {
 impl BotCommand for SkillCommand {
     fn register(&self, command: &mut CreateApplicationCommand) {
         command
-            .description("Does a skill roll following the Call of Cthulhu 6th Edition. `/sk6` is the same. | 第6版のルールに基づいて技能ロールを行います. `/sk6`と同じ動きをします.")
+            .description("Does a skill roll. `/sk6` (The CoC 6th Edition) is the same. | `/sk6`と同様に, 第6版のルールに基づいて技能ロールを行います.")
             .create_option(|option| {
                 option
                     .name("chance")
