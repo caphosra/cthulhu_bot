@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::env;
 use std::fs::File;
 use std::io::Write;
 
@@ -8,6 +7,8 @@ use chrono::prelude::Local;
 use once_cell::sync::Lazy;
 use serenity::prelude::Mutex;
 use tokio::time::Duration;
+
+use crate::config::BOT_CONFIG;
 
 /// A kind of the log.
 pub enum LogKind {
@@ -42,17 +43,19 @@ pub struct Logger;
 impl Logger {
     /// Opens the log file and assign its handle to `LOG_FILE`.
     pub async fn init() {
-        if let Ok(log_path) = env::var("LOG_PATH") {
-            let file = File::create(log_path);
-            match file {
-                Ok(file) => {
-                    let mut log_file = LOG_FILE.lock().await;
-                    *log_file = Box::new(Some(file));
-                }
-                Err(err) => log!(ERROR, "{}", err),
+        let config = BOT_CONFIG.lock().await;
+        if config.is_none() {
+            log!(ERROR, "The config has not been initialized.");
+        }
+
+        let log_path = &config.as_ref().unwrap().log_path;
+        let file = File::create(log_path);
+        match file {
+            Ok(file) => {
+                let mut log_file = LOG_FILE.lock().await;
+                *log_file = Box::new(Some(file));
             }
-        } else {
-            log!(ERROR, "Failed to get LOG_PATH.");
+            Err(err) => log!(ERROR, "{}", err),
         }
     }
 
