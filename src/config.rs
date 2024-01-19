@@ -37,6 +37,7 @@ impl BotConfigError {
 pub struct BotConfig {
     pub discord_token: String,
     pub log_path: String,
+    pub status_message: String,
     pub database_url: Option<String>,
 }
 

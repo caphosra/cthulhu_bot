@@ -15,9 +15,6 @@ use crate::logging::Logger;
 pub static DATABASE: Lazy<Mutex<SizedBotDatabase>> =
     Lazy::new(|| Mutex::new(Box::new(DummyDatabase {})));
 
-/// A status message that shows up on the bot.
-pub const STATUS_MESSAGE: &str = "Call of Cthulhu";
-
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
     // Read the configurations.

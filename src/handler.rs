@@ -3,9 +3,10 @@ use serenity::model::prelude::{Activity, Ready};
 use serenity::prelude::{Context, EventHandler};
 
 use crate::commands::BotCommandManager;
+use crate::config::BOT_CONFIG;
 use crate::log;
 use crate::logging::Logger;
-use crate::{DATABASE, STATUS_MESSAGE};
+use crate::DATABASE;
 
 /// An event handler for the bot.
 pub struct BotHandler;
@@ -13,7 +14,13 @@ pub struct BotHandler;
 #[serenity::async_trait]
 impl EventHandler for BotHandler {
     async fn ready(&self, ctx: Context, ready: Ready) {
-        ctx.set_activity(Activity::playing(STATUS_MESSAGE)).await;
+        {
+            let config = BOT_CONFIG.lock().await;
+            assert!(config.is_some());
+
+            let status_message = &config.as_ref().unwrap().status_message;
+            ctx.set_activity(Activity::playing(status_message)).await;
+        }
 
         let db = DATABASE.lock().await;
         let result = BotCommandManager::register_all(&ctx, db.is_available()).await;
