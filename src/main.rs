@@ -1,14 +1,12 @@
 #[macro_use]
 extern crate cmd_macro;
 
-use std::env;
-use std::io::{Error, ErrorKind};
-
 use anyhow::Result;
 use once_cell::sync::Lazy;
 use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
 
+use crate::config::{BotConfig, BOT_CONFIG};
 use crate::database::{DummyDatabase, PgDatabase, SizedBotDatabase};
 use crate::handler::BotHandler;
 use crate::logging::Logger;
@@ -17,17 +15,24 @@ use crate::logging::Logger;
 pub static DATABASE: Lazy<Mutex<SizedBotDatabase>> =
     Lazy::new(|| Mutex::new(Box::new(DummyDatabase {})));
 
-/// A status message that shows up on the bot.
-pub const STATUS_MESSAGE: &str = "Call of Cthulhu";
-
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
-    // Load the environmental variables.
-    let token = env::var("DISCORD_TOKEN")
-        .map_err(|_| Error::new(ErrorKind::Other, "Failed to get DISCORD_TOKEN."))?;
+    // Read the configurations.
+    let (token, database_url) = {
+        let config = BOT_CONFIG.lock().await;
+        if config.is_none() {
+            log!(ERROR, "The config has not been initialized.");
+        }
+
+        let bot_config = config.as_ref().unwrap();
+        (
+            bot_config.discord_token.clone(),
+            bot_config.database_url.clone(),
+        )
+    };
 
     // Connect to the database.
-    if let Ok(database_url) = env::var("DATABASE_URL") {
+    if let Some(database_url) = database_url {
         let database = PgDatabase::init(&database_url).await?;
 
         let mut db = DATABASE.lock().await;
@@ -53,6 +58,10 @@ async fn start_bot() -> Result<()> {
 
 #[tokio::main]
 async fn main() {
+    // Load the configurations.
+    let result = BotConfig::load_from_file().await;
+    Logger::log_err(&result).await;
+
     Logger::init().await;
 
     Logger::publish_daily_reports();
@@ -62,6 +71,7 @@ async fn main() {
 }
 
 pub mod commands;
+pub mod config;
 pub mod database;
 pub mod handler;
 pub mod logging;
