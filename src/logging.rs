@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::Write;
 
 use anyhow::Result;
@@ -49,7 +49,7 @@ impl Logger {
         }
 
         let log_path = &config.as_ref().unwrap().log_path;
-        let file = File::create(log_path);
+        let file = OpenOptions::new().append(true).create(true).open(log_path);
         match file {
             Ok(file) => {
                 let mut log_file = LOG_FILE.lock().await;
