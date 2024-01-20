@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use regex::Regex;
-use syn::{parse_macro_input, FnArg, ImplItem, ImplItemMethod, ItemImpl, Stmt};
+use syn::{parse_macro_input, FnArg, ImplItem, ImplItemMethod, ItemImpl};
 
 /// Finds a function from impl.
 fn find_function<'l>(item_impl: &'l mut ItemImpl, fn_name: &str) -> Option<&'l mut ImplItemMethod> {
@@ -66,26 +66,6 @@ pub fn naming(_attr: TokenStream, item: TokenStream) -> TokenStream {
     );
 
     let name: proc_macro2::TokenStream = name.to_lowercase().parse().unwrap();
-
-    match find_function(&mut item_impl, "register") {
-        Some(method) => {
-            let arg_name = match method.sig.inputs.last().unwrap() {
-                FnArg::Receiver(_) => panic!("The last argument must not be a receiver."),
-                FnArg::Typed(typed) => typed.pat.to_token_stream(),
-            };
-
-            let stmt: TokenStream = (quote! {
-                #arg_name.name(#name);
-            })
-            .into();
-
-            method
-                .block
-                .stmts
-                .insert(0, parse_macro_input!(stmt as Stmt));
-        }
-        None => panic!("A function `register` should be implemented."),
-    }
 
     let name_function: TokenStream = (quote! {
         fn name(&self) -> &str {

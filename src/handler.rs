@@ -1,5 +1,6 @@
-use serenity::model::application::interaction::{Interaction, InteractionType};
-use serenity::model::prelude::{Activity, Ready};
+use serenity::gateway::ActivityData;
+use serenity::model::application::{Interaction, InteractionType};
+use serenity::model::prelude::Ready;
 use serenity::prelude::{Context, EventHandler};
 
 use crate::commands::BotCommandManager;
@@ -19,7 +20,7 @@ impl EventHandler for BotHandler {
             assert!(config.is_some());
 
             let status_message = &config.as_ref().unwrap().status_message;
-            ctx.set_activity(Activity::playing(status_message)).await;
+            ctx.set_activity(Some(ActivityData::playing(status_message)));
         }
 
         let db = DATABASE.lock().await;
@@ -30,8 +31,8 @@ impl EventHandler for BotHandler {
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        if interaction.kind() == InteractionType::ApplicationCommand {
-            let interaction = interaction.application_command().unwrap();
+        if interaction.kind() == InteractionType::Command {
+            let interaction = interaction.command().unwrap();
             let result = BotCommandManager::run_command(&ctx, &interaction, &DATABASE).await;
             Logger::log_err(&result).await;
         }
