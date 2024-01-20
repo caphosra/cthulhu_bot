@@ -64,6 +64,12 @@ async fn main() {
 
     Logger::init().await;
 
+    log!(
+        LOG,
+        "----------------------\n  cthulhu bot v{}\n----------------------",
+        env!("CARGO_PKG_VERSION")
+    );
+
     Logger::publish_daily_reports();
 
     let result = start_bot().await;
