@@ -1,7 +1,6 @@
 use anyhow::Result;
-use serenity::builder::CreateApplicationCommand;
-use serenity::model::application::command::CommandOptionType;
-use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
+use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
+use serenity::model::application::{CommandInteraction, CommandOptionType};
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
@@ -14,32 +13,34 @@ pub struct SetCommand;
 #[db_required(true)]
 #[serenity::async_trait]
 impl BotCommand for SetCommand {
-    fn register(&self, command: &mut CreateApplicationCommand) {
-        command
+    fn create(&self) -> CreateCommand {
+        CreateCommand::new(self.name())
             .description("Assigns a value to your parameter. | パラメータに値を代入します.")
-            .create_option(|option| {
-                option
-                    .name("param")
-                    .kind(CommandOptionType::String)
-                    .add_string_choice("HP", "HP")
-                    .add_string_choice("SAN", "SAN")
-                    .add_string_choice("MP", "MP")
-                    .description("A parameter name | 代入先")
-                    .required(true)
-            })
-            .create_option(|option| {
-                option
-                    .name("value")
-                    .kind(CommandOptionType::Integer)
-                    .description("A value | 代入する値")
-                    .required(true)
-            });
+            .add_option(
+                CreateCommandOption::new(
+                    CommandOptionType::String,
+                    "param",
+                    "A parameter name | 代入先",
+                )
+                .add_string_choice("HP", "HP")
+                .add_string_choice("SAN", "SAN")
+                .add_string_choice("MP", "MP")
+                .required(true),
+            )
+            .add_option(
+                CreateCommandOption::new(
+                    CommandOptionType::Integer,
+                    "value",
+                    "A value | 代入する値",
+                )
+                .required(true),
+            )
     }
 
     async fn execute(
         &self,
         ctx: &Context,
-        interaction: &ApplicationCommandInteraction,
+        interaction: &CommandInteraction,
         data: &Mutex<SizedBotDatabase>,
     ) -> Result<CommandStatus> {
         let parameter = interaction.get_string_option("param".into()).unwrap();
@@ -55,7 +56,7 @@ impl BotCommand for SetCommand {
         let value = value as i16;
         let data = data.lock().await;
         let author = interaction.get_nickname();
-        let user_id = interaction.user.id.0;
+        let user_id = interaction.user.id.get();
         let mut status = data.get_value(user_id).await;
 
         match parameter {
@@ -63,14 +64,13 @@ impl BotCommand for SetCommand {
                 let before = status.update_value(parameter, value).unwrap();
                 data.set_value(user_id, status).await?;
 
-                interaction.send_embed(ctx, |embed| {
-                    embed.title(format!("{}'s status", author));
-                    embed.field(
+                interaction.send_embed(ctx, CreateEmbed::new()
+                    .title(format!("{}'s status", author))
+                    .field(
                         parameter,
                         format!("{} **{}** → **{}**", Self::get_icon(parameter), before, value),
                         false
-                    )
-                }).await?;
+                    )).await?;
 
                 Ok(CommandStatus::Ok)
             },

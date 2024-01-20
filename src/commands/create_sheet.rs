@@ -1,7 +1,7 @@
 use anyhow::Result;
 use once_cell::sync::Lazy;
-use serenity::builder::CreateApplicationCommand;
-use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
+use serenity::builder::{CreateCommand, CreateEmbed};
+use serenity::model::application::CommandInteraction;
 use serenity::prelude::{Context, Mutex};
 
 use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
@@ -57,33 +57,29 @@ static STATUSES: Lazy<Vec<Status>> = Lazy::new(|| {
 #[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for CSCommand {
-    fn register(&self, command: &mut CreateApplicationCommand) {
-        command.description("Creates a character sheet. | キャラクターシートを作成します.");
+    fn create(&self) -> CreateCommand {
+        CreateCommand::new(self.name())
+            .description("Creates a character sheet. | キャラクターシートを作成します.")
     }
 
     async fn execute(
         &self,
         ctx: &Context,
-        interaction: &ApplicationCommandInteraction,
+        interaction: &CommandInteraction,
     ) -> Result<CommandStatus> {
         let author = interaction.get_nickname();
 
-        interaction
-            .send_embed(ctx, |embed| {
-                embed.title(format!("{}'s character", author));
+        let embed = CreateEmbed::new().title(format!("{}'s character", author));
+        let embed = STATUSES.iter().fold(embed, |embed, status| {
+            let result = d20::roll_dice(status.roll).unwrap();
+            embed.field(
+                format!("{} {}", status.name, result.total),
+                result.as_string(),
+                true,
+            )
+        });
 
-                for status in STATUSES.iter() {
-                    let result = d20::roll_dice(status.roll).unwrap();
-                    embed.field(
-                        format!("{} {}", status.name, result.total),
-                        result.as_string(),
-                        true,
-                    );
-                }
-
-                embed
-            })
-            .await?;
+        interaction.send_embed(ctx, embed).await?;
 
         Ok(CommandStatus::Ok)
     }
