@@ -1,12 +1,12 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use regex::Regex;
-use syn::{parse_macro_input, FnArg, ImplItem, ImplItemMethod, ItemImpl};
+use syn::{parse_macro_input, FnArg, ImplItem, ImplItemFn, ItemImpl};
 
 /// Finds a function from impl.
-fn find_function<'l>(item_impl: &'l mut ItemImpl, fn_name: &str) -> Option<&'l mut ImplItemMethod> {
+fn find_function<'l>(item_impl: &'l mut ItemImpl, fn_name: &str) -> Option<&'l mut ImplItemFn> {
     item_impl.items.iter_mut().find_map(|item| match item {
-        ImplItem::Method(method) => {
+        ImplItem::Fn(method) => {
             if method.sig.ident.to_string() == fn_name {
                 Some(method)
             } else {
