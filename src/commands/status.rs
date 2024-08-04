@@ -15,7 +15,8 @@ pub struct StatusCommand;
 impl BotCommand for StatusCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Displays your status. | ステータスを表示します.")
+            .description("Displays your status.")
+            .description_localized("ja", "ステータスを表示します.")
     }
 
     async fn execute(

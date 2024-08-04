@@ -15,25 +15,22 @@ pub struct SetCommand;
 impl BotCommand for SetCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Assigns a value to your parameter. | パラメータに値を代入します.")
+            .description("Assigns a value to your parameter.")
+            .description_localized("ja", "パラメータに値を代入します.")
             .add_option(
-                CreateCommandOption::new(
-                    CommandOptionType::String,
-                    "param",
-                    "A parameter name | 代入先",
-                )
-                .add_string_choice("HP", "HP")
-                .add_string_choice("SAN", "SAN")
-                .add_string_choice("MP", "MP")
-                .required(true),
+                CreateCommandOption::new(CommandOptionType::String, "param", "A parameter name")
+                    .name_localized("ja", "パラメータ")
+                    .description_localized("ja", "代入先")
+                    .add_string_choice("HP", "HP")
+                    .add_string_choice("SAN", "SAN")
+                    .add_string_choice("MP", "MP")
+                    .required(true),
             )
             .add_option(
-                CreateCommandOption::new(
-                    CommandOptionType::Integer,
-                    "value",
-                    "A value | 代入する値",
-                )
-                .required(true),
+                CreateCommandOption::new(CommandOptionType::Integer, "value", "A value")
+                    .name_localized("ja", "値")
+                    .description_localized("ja", "代入する値")
+                    .required(true),
             )
     }
 
