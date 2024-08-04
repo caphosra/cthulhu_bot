@@ -182,9 +182,10 @@ impl SkillCommand {
 impl BotCommand for SkillCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Does a skill roll. `/sk6` (The CoC 6th Edition) is the same. | `/sk6`と同様に, 第6版のルールに基づいて技能ロールを行います.")
-            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance | 技能値").required(true))
-            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment | ダイスの説明"))
+            .description("Does a skill roll. This is an alias for `/sk6` (The CoC 6th Edition). | `/sk6`と同様に, 第6版のルールに基づいて技能ロールを行います.")
+            .description_localized("ja", "第6版のルールに基づいて技能ロールを行います. `/sk6`と全く同じです.")
+            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance").description_localized("ja", "技能値").required(true))
+            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment").description_localized("ja", "ダイスの説明"))
     }
 
     async fn execute(
@@ -202,9 +203,17 @@ impl BotCommand for SkillCommand {
 impl BotCommand for Sk6Command {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Does a skill roll following the Call of Cthulhu 6th Edition. | 第6版のルールに基づいて技能ロールを行います.")
-            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance | 技能値").required(true))
-            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment | ダイスの説明"))
+            .description("Does a skill roll following the Call of Cthulhu 6th Edition.")
+            .description_localized("ja", "第6版のルールに基づいて技能ロールを行います.")
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance")
+                    .description_localized("ja", "技能値")
+                    .required(true),
+            )
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::String, "comment", "A comment")
+                    .description_localized("ja", "ダイスの説明"),
+            )
     }
 
     async fn execute(
@@ -222,9 +231,17 @@ impl BotCommand for Sk6Command {
 impl BotCommand for Sk7Command {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Does a skill roll following the Call of Cthulhu 7th Edition. | 第7版のルールに基づいて技能ロールを行います.")
-            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance | 技能値").required(true))
-            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment | ダイスの説明"))
+            .description("Does a skill roll following the Call of Cthulhu 7th Edition.")
+            .description_localized("ja", "第7版のルールに基づいて技能ロールを行います.")
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance")
+                    .description_localized("ja", "技能値")
+                    .required(true),
+            )
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::String, "comment", "A comment")
+                    .description_localized("ja", "ダイスの説明"),
+            )
     }
 
     async fn execute(
@@ -242,9 +259,17 @@ impl BotCommand for Sk7Command {
 impl BotCommand for SkDGCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Does a skill roll following the Delta Green. | Delta Greenのルールに基づいて技能ロールを行います.")
-            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance | 技能値").required(true))
-            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment | ダイスの説明"))
+            .description("Does a skill roll following the Delta Green.")
+            .description_localized("ja", "Delta Greenのルールに基づいて技能ロールを行います.")
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance")
+                    .description_localized("ja", "技能値")
+                    .required(true),
+            )
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::String, "comment", "A comment")
+                    .description_localized("ja", "ダイスの説明"),
+            )
     }
 
     async fn execute(
@@ -262,9 +287,17 @@ impl BotCommand for SkDGCommand {
 impl BotCommand for SkBRPCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Does a skill roll following the BRP 2023. | BRP 2023のルールに基づいて技能ロールを行います.")
-            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance | 技能値").required(true))
-            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment | ダイスの説明"))
+            .description("Does a skill roll following the BRP 2023.")
+            .description_localized("ja", "BRP 2023のルールに基づいて技能ロールを行います.")
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance")
+                    .description_localized("ja", "技能値")
+                    .required(true),
+            )
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::String, "comment", "A comment")
+                    .description_localized("ja", "ダイスの説明"),
+            )
     }
 
     async fn execute(

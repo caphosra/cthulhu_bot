@@ -15,13 +15,16 @@ pub struct ChooseCommand;
 impl BotCommand for ChooseCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Makes a random choice. | 与えられたものからランダムに選択をします.")
+            .description("Makes a random choice.")
+            .description_localized("ja", "与えられたものからランダムに選択をします.")
             .add_option(
                 CreateCommandOption::new(
                     CommandOptionType::String,
                     "choices",
-                    "Comma-separated choices (ex. A,B,C) | カンマで区切られた選択肢 (例: A,B,C)",
+                    "Comma-separated choices (ex. A,B,C)",
                 )
+                .name_localized("ja", "選択肢")
+                .description_localized("ja", "カンマ区切りで与えてください (例: A,B,C)")
                 .required(true),
             )
     }

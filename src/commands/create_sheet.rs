@@ -59,7 +59,8 @@ static STATUSES: Lazy<Vec<Status>> = Lazy::new(|| {
 impl BotCommand for CSCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Creates a character sheet. | キャラクターシートを作成します.")
+            .description("Creates a character sheet.")
+            .description_localized("ja", "キャラクターシートを作成します.")
     }
 
     async fn execute(
