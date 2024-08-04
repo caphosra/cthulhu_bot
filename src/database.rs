@@ -1,12 +1,24 @@
 use anyhow::Result;
-use sqlx::postgres::PgPoolOptions;
-use sqlx::Pool;
-use sqlx::Postgres;
 
+#[cfg(feature = "db")]
 use crate::log;
+#[cfg(feature = "db")]
+use sqlx::postgres::PgPoolOptions;
+#[cfg(feature = "db")]
+use sqlx::{Pool, Postgres};
 
-/// A user status.
+/// An user status.
+#[cfg(feature = "db")]
 #[derive(Default, sqlx::FromRow)]
+pub struct Status {
+    pub hp: i16,
+    pub san: i16,
+    pub mp: i16,
+}
+
+/// An user status.
+#[cfg(not(feature = "db"))]
+#[derive(Default)]
 pub struct Status {
     pub hp: i16,
     pub san: i16,
@@ -91,10 +103,12 @@ impl BotDatabase for DummyDatabase {
 }
 
 /// A database which uses Postgres SQL.
+#[cfg(feature = "db")]
 pub struct PgDatabase {
     pool: Pool<Postgres>,
 }
 
+#[cfg(feature = "db")]
 #[serenity::async_trait]
 impl BotDatabase for PgDatabase {
     fn is_available(&self) -> bool {
@@ -138,6 +152,7 @@ impl BotDatabase for PgDatabase {
     }
 }
 
+#[cfg(feature = "db")]
 impl PgDatabase {
     /// Connects to a database.
     pub async fn init(uri: &str) -> Result<Self> {
