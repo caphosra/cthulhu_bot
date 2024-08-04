@@ -182,10 +182,20 @@ impl SkillCommand {
 impl BotCommand for SkillCommand {
     fn create(&self) -> CreateCommand {
         CreateCommand::new(self.name())
-            .description("Does a skill roll. This is an alias for `/sk6` (The CoC 6th Edition). | `/sk6`と同様に, 第6版のルールに基づいて技能ロールを行います.")
-            .description_localized("ja", "第6版のルールに基づいて技能ロールを行います. `/sk6`と全く同じです.")
-            .add_option(CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance").description_localized("ja", "技能値").required(true))
-            .add_option(CreateCommandOption::new(CommandOptionType::String, "comment", "A comment").description_localized("ja", "ダイスの説明"))
+            .description("Does a skill roll. This is an alias for `/sk6` (The CoC 6th Edition).")
+            .description_localized(
+                "ja",
+                "第6版のルールに基づいて技能ロールを行います. `/sk6`と全く同じです.",
+            )
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::Integer, "chance", "A skill chance")
+                    .description_localized("ja", "技能値")
+                    .required(true),
+            )
+            .add_option(
+                CreateCommandOption::new(CommandOptionType::String, "comment", "A comment")
+                    .description_localized("ja", "ダイスの説明"),
+            )
     }
 
     async fn execute(
