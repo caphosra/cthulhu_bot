@@ -10,9 +10,9 @@ use serenity::prelude::{Context, Mutex};
 
 use crate::commands::choose::ChooseCommand;
 use crate::commands::create_sheet::CSCommand;
+use crate::commands::opposed::{Op6Command, Op7Command};
 use crate::commands::roll::RollCommand;
 use crate::commands::set::SetCommand;
-use crate::commands::opposed::{Op6Command, Op7Command};
 use crate::commands::skill::{Sk6Command, Sk7Command, SkBRPCommand, SkDGCommand, SkillCommand};
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;

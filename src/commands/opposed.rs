@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 
 use anyhow::Result;
+use rand::Rng;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
 use serenity::prelude::{Context, Mutex};
-use rand::Rng;
 
 use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
@@ -43,22 +43,14 @@ impl BotCommand for Op6Command {
                 .required(true),
             )
             .add_option(
-                CreateCommandOption::new(
-                    CommandOptionType::String,
-                    "name1",
-                    "A name of player1",
-                )
-                .name_localized("ja", "名前1")
-                .description_localized("ja", "参加者1の名前")
+                CreateCommandOption::new(CommandOptionType::String, "name1", "A name of player1")
+                    .name_localized("ja", "名前1")
+                    .description_localized("ja", "参加者1の名前"),
             )
             .add_option(
-                CreateCommandOption::new(
-                    CommandOptionType::String,
-                    "name2",
-                    "A name of player2",
-                )
-                .name_localized("ja", "名前2")
-                .description_localized("ja", "参加者2の名前")
+                CreateCommandOption::new(CommandOptionType::String, "name2", "A name of player2")
+                    .name_localized("ja", "名前2")
+                    .description_localized("ja", "参加者2の名前"),
             )
             .add_option(
                 CreateCommandOption::new(
@@ -83,8 +75,12 @@ impl BotCommand for Op6Command {
             return Ok(CommandStatus::Err("A status must be 0-20.".to_string()));
         }
 
-        let name1 = interaction.get_string_option("name1".into()).unwrap_or("player1");
-        let name2 = interaction.get_string_option("name2".into()).unwrap_or("player2");
+        let name1 = interaction
+            .get_string_option("name1".into())
+            .unwrap_or("player1");
+        let name2 = interaction
+            .get_string_option("name2".into())
+            .unwrap_or("player2");
 
         let comment = interaction
             .get_string_option("comment".into())
@@ -105,15 +101,29 @@ impl BotCommand for Op6Command {
                         CreateEmbed::new()
                             .title(comment)
                             .field(
-                                format!(":first_place: {}", if player1_won { name1 } else { name2 }),
-                                if player1_won { &player1_result_text } else { &player2_result_text },
+                                format!(
+                                    ":first_place: {}",
+                                    if player1_won { name1 } else { name2 }
+                                ),
+                                if player1_won {
+                                    &player1_result_text
+                                } else {
+                                    &player2_result_text
+                                },
                                 false,
                             )
                             .field(
-                                format!(":second_place: {}", if player1_won { name2 } else { name1 }),
-                                if player1_won { &player2_result_text } else { &player1_result_text },
+                                format!(
+                                    ":second_place: {}",
+                                    if player1_won { name2 } else { name1 }
+                                ),
+                                if player1_won {
+                                    &player2_result_text
+                                } else {
+                                    &player1_result_text
+                                },
                                 false,
-                            )
+                            ),
                     )
                     .await?;
 
@@ -129,7 +139,7 @@ enum RollResult {
     ExtremeSuccess(i32),
     HardSuccess(i32),
     Success(i32),
-    Failure(i32)
+    Failure(i32),
 }
 
 impl PartialOrd for RollResult {
@@ -139,26 +149,26 @@ impl PartialOrd for RollResult {
                 RollResult::ExtremeSuccess(num2) => Some(num1.cmp(num2)),
                 RollResult::HardSuccess(_) => Some(Ordering::Greater),
                 RollResult::Success(_) => Some(Ordering::Greater),
-                RollResult::Failure(_) => Some(Ordering::Greater)
+                RollResult::Failure(_) => Some(Ordering::Greater),
             },
             RollResult::HardSuccess(num1) => match other {
                 RollResult::ExtremeSuccess(_) => Some(Ordering::Less),
                 RollResult::HardSuccess(num2) => Some(num1.cmp(num2)),
                 RollResult::Success(_) => Some(Ordering::Greater),
-                RollResult::Failure(_) => Some(Ordering::Greater)
+                RollResult::Failure(_) => Some(Ordering::Greater),
             },
             RollResult::Success(num1) => match other {
                 RollResult::ExtremeSuccess(_) => Some(Ordering::Less),
                 RollResult::HardSuccess(_) => Some(Ordering::Less),
                 RollResult::Success(num2) => Some(num1.cmp(num2)),
-                RollResult::Failure(_) => Some(Ordering::Greater)
+                RollResult::Failure(_) => Some(Ordering::Greater),
             },
             RollResult::Failure(num1) => match other {
                 RollResult::ExtremeSuccess(_) => Some(Ordering::Less),
                 RollResult::HardSuccess(_) => Some(Ordering::Less),
                 RollResult::Success(_) => Some(Ordering::Less),
-                RollResult::Failure(num2) => Some(num1.cmp(num2))
-            }
+                RollResult::Failure(num2) => Some(num1.cmp(num2)),
+            },
         }
     }
 }
@@ -169,7 +179,7 @@ impl ToString for RollResult {
             RollResult::ExtremeSuccess(_) => "Extreme Success".into(),
             RollResult::HardSuccess(_) => "Hard Success".into(),
             RollResult::Success(_) => "Success".into(),
-            RollResult::Failure(_) => "Failure".into()
+            RollResult::Failure(_) => "Failure".into(),
         }
     }
 }
@@ -260,8 +270,12 @@ impl BotCommand for Op7Command {
         let bonus1 = interaction.get_int_option("bonus1".into()).unwrap_or(0);
         let bonus2 = interaction.get_int_option("bonus2".into()).unwrap_or(0);
 
-        let name1 = interaction.get_string_option("name1".into()).unwrap_or("player1");
-        let name2 = interaction.get_string_option("name2".into()).unwrap_or("player2");
+        let name1 = interaction
+            .get_string_option("name1".into())
+            .unwrap_or("player1");
+        let name2 = interaction
+            .get_string_option("name2".into())
+            .unwrap_or("player2");
 
         let comment = interaction
             .get_string_option("comment".into())
@@ -270,39 +284,58 @@ impl BotCommand for Op7Command {
         fn roll_dice(status: i32, bonus: i32) -> (String, RollResult) {
             let mut rng = rand::thread_rng();
             let lower_digit = rng.gen_range(0..10);
-            let results = (0..(1 + bonus.abs())).map(|_| {
-                let res = rng.gen_range(0..10) * 10 + lower_digit;
-                if res == 0 {
-                    100
-                } else {
-                    res
-                }
-            }).collect::<Vec<_>>();
+            let results = (0..(1 + bonus.abs()))
+                .map(|_| {
+                    let res = rng.gen_range(0..10) * 10 + lower_digit;
+                    if res == 0 {
+                        100
+                    } else {
+                        res
+                    }
+                })
+                .collect::<Vec<_>>();
 
             let (selected, selected_text) = if bonus == 0 {
                 let res = results.iter().next().unwrap();
                 (*res, res.to_string())
             } else if bonus > 0 {
                 let minimum = results.iter().min().unwrap();
-                let list = results.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
+                let list = results
+                    .iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ");
                 (*minimum, format!("min([{}]) = {}", list, minimum))
             } else {
                 let maximum = results.iter().max().unwrap();
-                let list = results.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
+                let list = results
+                    .iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ");
                 (*maximum, format!("max([{}]) = {}", list, maximum))
             };
 
             if selected <= status / 5 {
-                (format!(":trophy: {} <= {} / 5", selected_text, status), RollResult::ExtremeSuccess(status))
-            }
-            else if selected <= status / 2 {
-                (format!(":star: {} <= {} / 2", selected_text, status), RollResult::HardSuccess(status))
-            }
-            else if selected <= status {
-                (format!(":o: {} <= {}", selected_text, status), RollResult::Success(status))
-            }
-            else {
-                (format!(":x: {} > {}", selected_text, status), RollResult::Failure(status))
+                (
+                    format!(":trophy: {} <= {} / 5", selected_text, status),
+                    RollResult::ExtremeSuccess(status),
+                )
+            } else if selected <= status / 2 {
+                (
+                    format!(":star: {} <= {} / 2", selected_text, status),
+                    RollResult::HardSuccess(status),
+                )
+            } else if selected <= status {
+                (
+                    format!(":o: {} <= {}", selected_text, status),
+                    RollResult::Success(status),
+                )
+            } else {
+                (
+                    format!(":x: {} > {}", selected_text, status),
+                    RollResult::Failure(status),
+                )
             }
         }
 
@@ -333,14 +366,22 @@ impl BotCommand for Op7Command {
                     .title(comment)
                     .field(
                         format!(":first_place: {}", if player1_won { name1 } else { name2 }),
-                        if player1_won { &result_text1 } else { &result_text2 },
+                        if player1_won {
+                            &result_text1
+                        } else {
+                            &result_text2
+                        },
                         false,
                     )
                     .field(
                         format!(":second_place: {}", if player1_won { name2 } else { name1 }),
-                        if player1_won { &result_text2 } else { &result_text1 },
+                        if player1_won {
+                            &result_text2
+                        } else {
+                            &result_text1
+                        },
                         false,
-                    )
+                    ),
             )
             .await?;
 
