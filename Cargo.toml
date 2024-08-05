@@ -1,6 +1,6 @@
 [package]
 name = "cthulhu_bot"
-version = "3.1.4"
+version = "3.2.0"
 authors = ["Akihisa Yagi <caphosra@gmail.com>"]
 edition = "2018"
 description = "An unofficial Discord bot which helps you to play Cthulhu TRPG. Please note that Chaosium Inc. owns the copyright of Cthulhu TRPG."
