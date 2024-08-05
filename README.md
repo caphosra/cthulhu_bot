@@ -23,15 +23,17 @@ The bot hosted by the owner is DB-free. If you want to use not DB-free features,
 
 |Command|DB-free|Description|
 |:---|:---:|:---|
-|`/choose <choice A, choice B, ...>`|:white_check_mark:|Makes a random choice.|
+|`/choose`|:white_check_mark:|Makes a random choice.|
 |`/cs`|:white_check_mark:|Creates a character sheet.|
-|`/roll <dice> [comment]`|:white_check_mark:|Rolls designated dices. Expressions supported by [d20](https://github.com/pholactery/d20) can be used.|
-|`/set <param> <value>`||Assigns a value to your parameter.|
-|`/skill <value> [comment]`|:white_check_mark:|Does a skill roll. `/sk6` is the same.|
-|`/sk6 <value> [comment]`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 6th Edition.|
-|`/sk7 <value> [comment]`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 7th Edition.|
-|`/skdg <value> [comment]`|:white_check_mark:|Does a skill roll following the Delta Green.|
-|`/skbrp <value> [comment]`|:white_check_mark:|Does a skill roll following the BRP 2023.|
+|`/op6`|:white_check_mark:|Does an opposed roll following the Call of Cthulhu 6th Edition.|
+|`/op7`|:white_check_mark:|Does an opposed roll following the Call of Cthulhu 7th Edition.|
+|`/roll`|:white_check_mark:|Rolls designated dices. Expressions supported by [d20](https://github.com/pholactery/d20) can be used.|
+|`/set`||Assigns a value to your parameter.|
+|`/skill`|:white_check_mark:|Does a skill roll. `/sk6` is the same.|
+|`/sk6`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 6th Edition.|
+|`/sk7`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 7th Edition.|
+|`/skdg`|:white_check_mark:|Does a skill roll following the Delta Green.|
+|`/skbrp`|:white_check_mark:|Does a skill roll following the BRP 2023.|
 |`/status`||Displays your status.|
 
 ### Roll dices
