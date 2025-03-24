@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build inside `ekidd/rust-musl-builder`
+      - name: Build inside `clux/muslrust:stable`
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           docker run -v $(pwd):/volume --rm -t clux/muslrust:stable cargo build --release
