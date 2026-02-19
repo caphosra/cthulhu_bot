@@ -4,11 +4,13 @@ use std::io::Write;
 
 use anyhow::Result;
 use chrono::prelude::Local;
-use once_cell::sync::Lazy;
+use log::Log;
+use once_cell::sync::{Lazy, OnceCell};
 use serenity::prelude::Mutex;
+use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::time::Duration;
 
-use crate::config::BOT_CONFIG;
+use crate::config::{BotConfigError, BOT_CONFIG};
 
 /// A kind of the log.
 pub enum LogKind {
@@ -27,9 +29,6 @@ impl ToString for LogKind {
     }
 }
 
-/// A handle of the log file. You cannot access this before the file is opened.
-pub static LOG_FILE: Lazy<Mutex<Box<Option<File>>>> = Lazy::new(|| Mutex::new(Box::new(None)));
-
 #[macro_export]
 macro_rules! log {
     ($kind:ident, $($text:expr),*) => {
@@ -37,54 +36,133 @@ macro_rules! log {
     };
 }
 
+static LOGGER: Logger = Logger;
+
 /// A handler for the log.
 pub struct Logger;
 
+const LOG_BUFFER_SIZE: usize = 0x1000;
+
+static LOG_SENDER: OnceCell<Sender<String>> = OnceCell::new();
+
 impl Logger {
-    /// Opens the log file and assign its handle to `LOG_FILE`.
-    pub async fn init() {
-        let config = BOT_CONFIG.lock().await;
-        if config.is_none() {
-            log!(ERROR, "The config has not been initialized.");
+    pub fn init() {
+        if let Err(_) = log::set_logger(&LOGGER) {
+            panic!("Failed to set the logger.");
+        }
+        log::set_max_level(log::LevelFilter::Info);
+    }
+
+    pub async fn init_file_logging() -> Result<()> {
+        // Open the log file to check if it is writable.
+        let log_file = Logger::open_log_file().await?;
+
+        // Create a channel for file logging.
+        let (tx, rx) = mpsc::channel::<String>(LOG_BUFFER_SIZE);
+
+        // Spawn a task for file logging.
+        tokio::spawn(async move {
+            Logger::file_logging_loop(log_file, rx).await;
+        });
+
+        // Initialize the log sender.
+        if let Err(_) = LOG_SENDER.set(tx) {
+            panic!("Re-initialized the log sender.");
         }
 
-        let log_path = &config.as_ref().unwrap().log_path;
-        let file = OpenOptions::new().append(true).create(true).open(log_path);
-        match file {
-            Ok(file) => {
-                let mut log_file = LOG_FILE.lock().await;
-                *log_file = Box::new(Some(file));
+        Ok(())
+    }
+
+    async fn file_logging_loop(mut file: File, mut rx: Receiver<String>) -> ! {
+        loop {
+            while let Some(text) = rx.recv().await {
+                if let Err(err) = file.write_all(text.as_bytes()) {
+                    print!("{}", text);
+
+                    panic!("Failed to write the log to the file. (Info: {})", err);
+                }
             }
-            Err(err) => log!(ERROR, "{}", err),
         }
     }
 
+    async fn open_log_file() -> Result<File> {
+        let config = BOT_CONFIG.lock().await;
+        match config.as_ref() {
+            Some(config) => {
+                let log_path = &config.log_path;
+                let file = OpenOptions::new()
+                    .append(true)
+                    .create(true)
+                    .open(log_path)
+                    .map_err(|_| {
+                        BotConfigError::new(&format!(
+                            "Cannot open or create the log file \"{}\".",
+                            log_path
+                        ))
+                    })?;
+
+                Ok(file)
+            }
+            None => {
+                panic!("The config has not been initialized.");
+            }
+        }
+    }
+}
+
+impl Log for Logger {
+    fn enabled(&self, metadata: &log::Metadata) -> bool {
+        // Only track the logs from this bot.
+        metadata.target().starts_with(env!("CARGO_PKG_NAME"))
+    }
+
+    fn log(&self, record: &log::Record) {
+        let date = Local::now().to_rfc3339();
+        let text = record
+            .args()
+            .to_string()
+            .lines()
+            .map(|line| format!("{:35} [{:5}] {}\n", date, record.level(), line))
+            .collect::<Vec<_>>()
+            .concat();
+
+        let sender = LOG_SENDER.get();
+        match sender {
+            Some(sender) => {
+                // Try to send the log to the file logging task.
+                if let Err(err) = sender.try_send(text.clone()) {
+                    // If failed, print the log to stderr and panic.
+                    eprint!("{}", text);
+
+                    panic!(
+                        "Failed to send the log to the file logging task. (Info: {})",
+                        err
+                    );
+                }
+            }
+            None => {
+                // If the sender is not initialized, print the log to the stdout or stderr.
+                if record.level() <= log::Level::Warn {
+                    eprint!("{}", text);
+                } else {
+                    print!("{}", text);
+                }
+            }
+        }
+    }
+
+    fn flush(&self) {}
+}
+
+impl Logger {
     /// Emits logs to the file.
     ///
     /// If the file has not been opened yet or it is readonly, the program is going to panic.
     pub async fn log(kind: LogKind, text: String) {
-        let date = Local::now().to_rfc3339();
-        let text = text
-            .lines()
-            .map(|line| {
-                let kind = format!("[{}]", kind.to_string());
-                format!("{:35} {:7} {}\n", date, kind, line)
-            })
-            .collect::<Vec<_>>()
-            .concat();
-
-        let mut file = LOG_FILE.lock().await;
-        match file.as_mut() {
-            Some(file) => {
-                if let Err(err) = file.write_all(text.as_bytes()) {
-                    eprint!("{}", text);
-                    panic!("Failed to write the log to the file. (Info: {})", err);
-                }
-            }
-            None => {
-                eprint!("{}", text);
-                panic!("No log file is opened.");
-            }
+        match kind {
+            LogKind::LOG => log::info!("{}", text),
+            LogKind::WARN => log::warn!("{}", text),
+            LogKind::ERROR => log::error!("{}", text),
         }
     }
 
@@ -99,7 +177,7 @@ impl Logger {
                     .map(|line| format!("  because: {}\n", line))
                     .collect::<Vec<_>>()
                     .concat();
-            Logger::log(LogKind::ERROR, text).await
+            log::error!("{}", text);
         }
     }
 

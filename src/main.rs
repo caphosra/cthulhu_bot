@@ -77,11 +77,15 @@ async fn start_bot() -> Result<()> {
 
 #[tokio::main]
 async fn main() {
+    Logger::init();
+
     // Load the configurations.
     let result = BotConfig::load_from_file().await;
     Logger::log_err(&result).await;
 
-    Logger::init().await;
+    // Initialize the file logging.
+    let result = Logger::init_file_logging().await;
+    Logger::log_err(&result).await;
 
     log!(
         LOG,

@@ -24,3 +24,4 @@ sqlx = { version = "0.8.0", features = [ "runtime-tokio-native-tls" , "postgres"
 tokio = { version = "1.30", features = ["rt-multi-thread"] }
 cmd_macro = { path = "cmd_macro" }
 chrono = "0.4"
+log = "0.4.29"
