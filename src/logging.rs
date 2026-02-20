@@ -10,7 +10,7 @@ use serenity::prelude::Mutex;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::time::Duration;
 
-use crate::config::{BotConfigError, BOT_CONFIG};
+use crate::config::{BotConfig, BotConfigError};
 
 /// A handler for the log.
 pub struct Logger;
@@ -62,27 +62,20 @@ impl Logger {
     }
 
     async fn open_log_file() -> Result<File> {
-        let config = BOT_CONFIG.lock().await;
-        match config.as_ref() {
-            Some(config) => {
-                let log_path = &config.log_path;
-                let file = OpenOptions::new()
-                    .append(true)
-                    .create(true)
-                    .open(log_path)
-                    .map_err(|_| {
-                        BotConfigError::new(&format!(
-                            "Cannot open or create the log file \"{}\".",
-                            log_path
-                        ))
-                    })?;
+        let config = BotConfig::get();
 
-                Ok(file)
-            }
-            None => {
-                panic!("The config has not been initialized.");
-            }
-        }
+        let file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open(&config.log_path)
+            .map_err(|_| {
+                BotConfigError::new(&format!(
+                    "Cannot open or create the log file \"{}\".",
+                    config.log_path
+                ))
+            })?;
+
+        Ok(file)
     }
 }
 

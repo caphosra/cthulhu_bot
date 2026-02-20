@@ -2,12 +2,12 @@
 extern crate cmd_macro;
 
 use anyhow::Result;
-use log::{error, info};
+use log::info;
 use once_cell::sync::Lazy;
 use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
 
-use crate::config::{BotConfig, BOT_CONFIG};
+use crate::config::BotConfig;
 use crate::database::{DummyDatabase, SizedBotDatabase};
 use crate::handler::BotHandler;
 use crate::logging::Logger;
@@ -48,25 +48,14 @@ async fn init_database(_database_url: &Option<String>) -> Result<()> {
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
     // Read the configurations.
-    let (token, database_url) = {
-        let config = BOT_CONFIG.lock().await;
-        if config.is_none() {
-            error!("The config has not been initialized.");
-        }
-
-        let bot_config = config.as_ref().unwrap();
-        (
-            bot_config.discord_token.clone(),
-            bot_config.database_url.clone(),
-        )
-    };
+    let config = BotConfig::get();
 
     // Connect to the database.
-    init_database(&database_url).await?;
+    init_database(&config.database_url).await?;
 
     // Build a client.
     let intents = GatewayIntents::empty();
-    let mut client = Client::builder(&token, intents)
+    let mut client = Client::builder(&config.discord_token, intents)
         .event_handler(BotHandler)
         .await?;
 
@@ -79,10 +68,6 @@ async fn start_bot() -> Result<()> {
 #[tokio::main]
 async fn main() {
     Logger::init();
-
-    // Load the configurations.
-    let result = BotConfig::load_from_file().await;
-    Logger::log_err(&result).await;
 
     // Initialize the file logging.
     let result = Logger::init_file_logging().await;
