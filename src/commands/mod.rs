@@ -17,7 +17,7 @@ use crate::commands::set::SetCommand;
 use crate::commands::skill::{Sk6Command, Sk7Command, SkBRPCommand, SkDGCommand, SkillCommand};
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
-use crate::logging::EVENT_COUNTERS;
+use crate::logging::BotEventCounter;
 
 /// Represents a handled result of the command.
 /// Note that you cannot use this for internal errors.
@@ -111,13 +111,7 @@ impl BotCommandManager {
 
                 let result = command.execute(ctx, interaction, data).await?;
 
-                let mut counter = EVENT_COUNTERS.lock().await;
-                let command_counter = counter.get_mut(name);
-                if let Some(counter) = command_counter {
-                    *counter += 1;
-                } else {
-                    counter.insert(name.clone(), 1);
-                }
+                BotEventCounter::increment(name).await;
 
                 if let CommandStatus::Err(message) = result {
                     Self::reply_error(ctx, interaction, message).await?;

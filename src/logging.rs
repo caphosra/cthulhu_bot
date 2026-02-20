@@ -145,23 +145,8 @@ impl Logger {
             info!("The daily report system is now enabled.");
 
             loop {
-                {
-                    let mut counter = EVENT_COUNTERS.lock().await;
-                    let mut text = "Daily report\n".to_string();
-                    if counter.len() == 0 {
-                        text += "  Nothing";
-                    } else {
-                        text += &counter
-                            .iter()
-                            .map(|(key, value)| format!("  {}: {}\n", key, value))
-                            .collect::<Vec<_>>()
-                            .concat();
-                    }
-                    info!("{}", text);
+                BotEventCounter::report_to_log().await;
 
-                    *counter = HashMap::new();
-                    info!("Initialize the event counters.");
-                }
                 tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
             }
         });
@@ -169,5 +154,42 @@ impl Logger {
 }
 
 /// Counters of the events.
-pub static EVENT_COUNTERS: Lazy<Mutex<HashMap<String, u32>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+static EVENT_COUNTERS: Lazy<Mutex<HashMap<String, u32>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+pub struct BotEventCounter;
+
+impl BotEventCounter {
+    pub async fn increment(name: &str) {
+        let mut counter = EVENT_COUNTERS.lock().await;
+        let command_counter = counter.get_mut(name);
+        if let Some(counter) = command_counter {
+            *counter += 1;
+        } else {
+            counter.insert(name.to_string(), 1);
+        }
+    }
+
+    /// Reports the counters to the log and **resets** the counters.
+    pub async fn report_to_log() {
+        let mut counter = EVENT_COUNTERS.lock().await;
+
+        let report = if counter.len() == 0 {
+            "  Nothing".to_string()
+        } else {
+            counter
+                .iter()
+                .map(|(key, value)| format!("  {}: {}\n", key, value))
+                .collect::<Vec<_>>()
+                .concat()
+        };
+
+        // Log the report at once to avoid interleaving with other logs.
+        info!("Usage report\n{}", report);
+
+        *counter = HashMap::new();
+
+        // Reset the counters immediately
+        // to prevent the counters being incremented after reporting.
+        info!("Reset the event counters.");
+    }
+}
