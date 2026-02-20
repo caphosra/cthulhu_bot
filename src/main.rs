@@ -2,6 +2,7 @@
 extern crate cmd_macro;
 
 use anyhow::Result;
+use log::{error, info};
 use once_cell::sync::Lazy;
 use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
@@ -39,7 +40,7 @@ async fn init_database(database_url: &Option<String>) -> Result<()> {
 /// Do nothing. If you want to use the database, please enable the `db` feature.
 #[cfg(not(feature = "db"))]
 async fn init_database(_database_url: &Option<String>) -> Result<()> {
-    log!(LOG, "The database features are disabled.");
+    info!("The database features are disabled.");
 
     Ok(())
 }
@@ -50,7 +51,7 @@ async fn start_bot() -> Result<()> {
     let (token, database_url) = {
         let config = BOT_CONFIG.lock().await;
         if config.is_none() {
-            log!(ERROR, "The config has not been initialized.");
+            error!("The config has not been initialized.");
         }
 
         let bot_config = config.as_ref().unwrap();
@@ -87,8 +88,7 @@ async fn main() {
     let result = Logger::init_file_logging().await;
     Logger::log_err(&result).await;
 
-    log!(
-        LOG,
+    info!(
         "----------------------\n  cthulhu bot v{}\n----------------------",
         env!("CARGO_PKG_VERSION")
     );

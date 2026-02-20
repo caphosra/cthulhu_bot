@@ -4,7 +4,7 @@ use std::io::Write;
 
 use anyhow::Result;
 use chrono::prelude::Local;
-use log::Log;
+use log::{error, info, Log};
 use once_cell::sync::{Lazy, OnceCell};
 use serenity::prelude::Mutex;
 use tokio::sync::mpsc::{self, Receiver, Sender};
@@ -12,34 +12,10 @@ use tokio::time::Duration;
 
 use crate::config::{BotConfigError, BOT_CONFIG};
 
-/// A kind of the log.
-pub enum LogKind {
-    LOG,
-    WARN,
-    ERROR,
-}
-
-impl ToString for LogKind {
-    fn to_string(&self) -> String {
-        match self {
-            &LogKind::LOG => "LOG".to_string(),
-            &LogKind::WARN => "WARN".to_string(),
-            &LogKind::ERROR => "ERROR".to_string(),
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! log {
-    ($kind:ident, $($text:expr),*) => {
-        crate::logging::Logger::log(crate::logging::LogKind::$kind, format!($($text),*)).await
-    };
-}
-
-static LOGGER: Logger = Logger;
-
 /// A handler for the log.
 pub struct Logger;
+
+static LOGGER: Logger = Logger;
 
 const LOG_BUFFER_SIZE: usize = 0x1000;
 
@@ -155,17 +131,6 @@ impl Log for Logger {
 }
 
 impl Logger {
-    /// Emits logs to the file.
-    ///
-    /// If the file has not been opened yet or it is readonly, the program is going to panic.
-    pub async fn log(kind: LogKind, text: String) {
-        match kind {
-            LogKind::LOG => log::info!("{}", text),
-            LogKind::WARN => log::warn!("{}", text),
-            LogKind::ERROR => log::error!("{}", text),
-        }
-    }
-
     /// Emits error logs.
     pub async fn log_err(result: &Result<()>) {
         if let Err(err) = result {
@@ -177,14 +142,14 @@ impl Logger {
                     .map(|line| format!("  because: {}\n", line))
                     .collect::<Vec<_>>()
                     .concat();
-            log::error!("{}", text);
+            error!("{}", text);
         }
     }
 
     /// Publishes a report of the events everyday.
     pub fn publish_daily_reports() {
         tokio::spawn(async {
-            log!(LOG, "The daily report system is now enabled.");
+            info!("The daily report system is now enabled.");
 
             loop {
                 {
@@ -199,10 +164,10 @@ impl Logger {
                             .collect::<Vec<_>>()
                             .concat();
                     }
-                    log!(LOG, "{}", text);
+                    info!("{}", text);
 
                     *counter = HashMap::new();
-                    log!(LOG, "Initialize the event counters.");
+                    info!("Initialize the event counters.");
                 }
                 tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
             }

@@ -1,5 +1,6 @@
 use anyhow::Result;
 use d20::Roll;
+use log::{error, info};
 use once_cell::sync::Lazy;
 use serenity::builder::{
     CreateCommand, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
@@ -16,7 +17,6 @@ use crate::commands::set::SetCommand;
 use crate::commands::skill::{Sk6Command, Sk7Command, SkBRPCommand, SkDGCommand, SkillCommand};
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
-use crate::log;
 use crate::logging::EVENT_COUNTERS;
 
 /// Represents a handled result of the command.
@@ -76,7 +76,7 @@ impl BotCommandManager {
             .filter_map(|command| {
                 if db_available || !command.use_db() {
                     tokio::spawn(async move {
-                        log!(LOG, "Registering /{}.", command.name());
+                        info!("Registering /{}.", command.name());
                     });
 
                     Some(command.create())
@@ -88,7 +88,7 @@ impl BotCommandManager {
 
         Command::set_global_commands(ctx, commands).await?;
 
-        log!(LOG, "Registered all commands.");
+        info!("Registered all commands.");
 
         Ok(())
     }
@@ -104,7 +104,7 @@ impl BotCommandManager {
             let name = &interaction.data.name;
             if command.name() == name {
                 if command_executed {
-                    log!(ERROR, "Some commands are duplicated.");
+                    error!("Some commands are duplicated.");
                     return Ok(());
                 }
                 command_executed = true;
@@ -125,7 +125,7 @@ impl BotCommandManager {
             }
         }
         if !command_executed {
-            log!(ERROR, "Tried to execute an unknown command.");
+            error!("Tried to execute an unknown command.");
         }
         Ok(())
     }
