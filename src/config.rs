@@ -1,13 +1,13 @@
-use anyhow::Result;
 use std::env;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufReader;
+use std::sync::OnceLock;
 
-use once_cell::sync::Lazy;
+use anyhow::Result;
+use log::error;
 use serde::Deserialize;
-use serenity::prelude::Mutex;
 
 /// Holds error information related to the process of loading the configurations.
 /// This should be used to handle errors triggered before the logging system is up.
@@ -42,11 +42,23 @@ pub struct BotConfig {
 }
 
 /// Holds the configurations of this bot. You need to call `BotConfig::load_from_file` before using this.
-pub static BOT_CONFIG: Lazy<Mutex<Option<BotConfig>>> = Lazy::new(|| Mutex::new(None));
+static BOT_CONFIG: OnceLock<BotConfig> = OnceLock::new();
 
 impl BotConfig {
+    /// Gets the configurations of this bot.
+    pub fn get() -> &'static BotConfig {
+        BOT_CONFIG.get_or_init(|| match BotConfig::load_from_file() {
+            Ok(config) => config,
+            Err(err) => {
+                error!("Failed to load the config. (Info: {})", err);
+
+                panic!("Failed to load the config.");
+            }
+        })
+    }
+
     /// Loads `BOT_CONFIG` from `./config.json`.
-    pub async fn load_from_file() -> Result<()> {
+    fn load_from_file() -> Result<BotConfig> {
         let executable_path = env::current_exe()?;
         let executable_dir = executable_path.parent().ok_or(BotConfigError::new(
             "Cannot retrieve the parent of this executable.",
@@ -57,13 +69,8 @@ impl BotConfig {
             let config_file = File::open(config_file)?;
             let reader = BufReader::new(config_file);
 
-            let config: BotConfig = serde_json::from_reader(reader)?;
-            {
-                let mut saved_config = BOT_CONFIG.lock().await;
-                *saved_config = Some(config);
-            }
-
-            Ok(())
+            let config = serde_json::from_reader(reader)?;
+            Ok(config)
         } else {
             Err(BotConfigError::new(
                 "No configuration file is provided. Create a new \"config.json\" in the directory where this bot is placed.",

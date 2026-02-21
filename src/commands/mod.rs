@@ -1,5 +1,6 @@
 use anyhow::Result;
 use d20::Roll;
+use log::{error, info};
 use once_cell::sync::Lazy;
 use serenity::builder::{
     CreateCommand, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
@@ -16,8 +17,7 @@ use crate::commands::set::SetCommand;
 use crate::commands::skill::{Sk6Command, Sk7Command, SkBRPCommand, SkDGCommand, SkillCommand};
 use crate::commands::status::StatusCommand;
 use crate::database::SizedBotDatabase;
-use crate::log;
-use crate::logging::EVENT_COUNTERS;
+use crate::logging::BotEventCounter;
 
 /// Represents a handled result of the command.
 /// Note that you cannot use this for internal errors.
@@ -76,7 +76,7 @@ impl BotCommandManager {
             .filter_map(|command| {
                 if db_available || !command.use_db() {
                     tokio::spawn(async move {
-                        log!(LOG, "Registering /{}.", command.name());
+                        info!("Registering /{}.", command.name());
                     });
 
                     Some(command.create())
@@ -88,7 +88,7 @@ impl BotCommandManager {
 
         Command::set_global_commands(ctx, commands).await?;
 
-        log!(LOG, "Registered all commands.");
+        info!("Registered all commands.");
 
         Ok(())
     }
@@ -104,20 +104,14 @@ impl BotCommandManager {
             let name = &interaction.data.name;
             if command.name() == name {
                 if command_executed {
-                    log!(ERROR, "Some commands are duplicated.");
+                    error!("Some commands are duplicated.");
                     return Ok(());
                 }
                 command_executed = true;
 
                 let result = command.execute(ctx, interaction, data).await?;
 
-                let mut counter = EVENT_COUNTERS.lock().await;
-                let command_counter = counter.get_mut(name);
-                if let Some(counter) = command_counter {
-                    *counter += 1;
-                } else {
-                    counter.insert(name.clone(), 1);
-                }
+                BotEventCounter::increment(name).await;
 
                 if let CommandStatus::Err(message) = result {
                     Self::reply_error(ctx, interaction, message).await?;
@@ -125,7 +119,7 @@ impl BotCommandManager {
             }
         }
         if !command_executed {
-            log!(ERROR, "Tried to execute an unknown command.");
+            error!("Tried to execute an unknown command.");
         }
         Ok(())
     }

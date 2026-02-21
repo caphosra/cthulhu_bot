@@ -2,11 +2,12 @@
 extern crate cmd_macro;
 
 use anyhow::Result;
+use log::info;
 use once_cell::sync::Lazy;
 use serenity::prelude::{GatewayIntents, Mutex};
 use serenity::Client;
 
-use crate::config::{BotConfig, BOT_CONFIG};
+use crate::config::BotConfig;
 use crate::database::{DummyDatabase, SizedBotDatabase};
 use crate::handler::BotHandler;
 use crate::logging::Logger;
@@ -39,7 +40,7 @@ async fn init_database(database_url: &Option<String>) -> Result<()> {
 /// Do nothing. If you want to use the database, please enable the `db` feature.
 #[cfg(not(feature = "db"))]
 async fn init_database(_database_url: &Option<String>) -> Result<()> {
-    log!(LOG, "The database features are disabled.");
+    info!("The database features are disabled.");
 
     Ok(())
 }
@@ -47,25 +48,14 @@ async fn init_database(_database_url: &Option<String>) -> Result<()> {
 /// Initializes a bot and lets the bot start.
 async fn start_bot() -> Result<()> {
     // Read the configurations.
-    let (token, database_url) = {
-        let config = BOT_CONFIG.lock().await;
-        if config.is_none() {
-            log!(ERROR, "The config has not been initialized.");
-        }
-
-        let bot_config = config.as_ref().unwrap();
-        (
-            bot_config.discord_token.clone(),
-            bot_config.database_url.clone(),
-        )
-    };
+    let config = BotConfig::get();
 
     // Connect to the database.
-    init_database(&database_url).await?;
+    init_database(&config.database_url).await?;
 
     // Build a client.
     let intents = GatewayIntents::empty();
-    let mut client = Client::builder(&token, intents)
+    let mut client = Client::builder(&config.discord_token, intents)
         .event_handler(BotHandler)
         .await?;
 
@@ -75,23 +65,27 @@ async fn start_bot() -> Result<()> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() {
-    // Load the configurations.
-    let result = BotConfig::load_from_file().await;
-    Logger::log_err(&result).await;
+async fn start_process() -> Result<()> {
+    // Initialize the file logging.
+    Logger::init_file_logging().await?;
 
-    Logger::init().await;
-
-    log!(
-        LOG,
+    info!(
         "----------------------\n  cthulhu bot v{}\n----------------------",
         env!("CARGO_PKG_VERSION")
     );
 
-    Logger::publish_daily_reports();
+    Logger::enable_daily_reports();
 
-    let result = start_bot().await;
+    start_bot().await?;
+
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    Logger::init();
+
+    let result = start_process().await;
     Logger::log_err(&result).await;
 }
 
