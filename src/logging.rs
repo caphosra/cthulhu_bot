@@ -3,7 +3,7 @@ use std::fs::{File, OpenOptions};
 use std::io::Write;
 
 use anyhow::Result;
-use chrono::prelude::Local;
+use chrono::{Timelike, Utc};
 use log::{error, info, Log};
 use once_cell::sync::{Lazy, OnceCell};
 use serenity::prelude::Mutex;
@@ -86,7 +86,7 @@ impl Log for Logger {
     }
 
     fn log(&self, record: &log::Record) {
-        let date = Local::now().to_rfc3339();
+        let date = Utc::now().to_rfc3339();
         let text = record
             .args()
             .to_string()
@@ -145,11 +145,30 @@ impl Logger {
             info!("The daily report system is now enabled.");
 
             loop {
-                BotEventCounter::report_to_log().await;
+                // Wait at least 1 hour.
+                tokio::time::sleep(Duration::from_secs(60 * 60)).await;
 
-                tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
+                // Calculate the waiting duration until the next report time.
+                let waiting_duration =
+                    Logger::duration_to_next_report().unwrap_or(Duration::from_secs(60 * 60 * 23));
+                tokio::time::sleep(waiting_duration).await;
+
+                BotEventCounter::report_to_log().await;
             }
         });
+    }
+
+    /// Calculates the duration until the next report time (00:00:00 UTC).
+    fn duration_to_next_report() -> Option<Duration> {
+        let now = Utc::now();
+        let delta = (now + chrono::Duration::days(1))
+            .naive_utc()
+            .with_hour(0)?
+            .with_minute(0)?
+            .with_second(0)?
+            .with_nanosecond(0)?
+            - now.naive_utc();
+        delta.to_std().ok()
     }
 }
 
