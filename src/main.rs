@@ -65,22 +65,27 @@ async fn start_bot() -> Result<()> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() {
-    Logger::init();
-
+async fn start_process() -> Result<()> {
     // Initialize the file logging.
-    let result = Logger::init_file_logging().await;
-    Logger::log_err(&result).await;
+    Logger::init_file_logging().await?;
 
     info!(
         "----------------------\n  cthulhu bot v{}\n----------------------",
         env!("CARGO_PKG_VERSION")
     );
 
-    Logger::publish_daily_reports();
+    Logger::enable_daily_reports();
 
-    let result = start_bot().await;
+    start_bot().await?;
+
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    Logger::init();
+
+    let result = start_process().await;
     Logger::log_err(&result).await;
 }
 

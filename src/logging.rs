@@ -140,7 +140,7 @@ impl Logger {
     }
 
     /// Publishes a report of the events everyday.
-    pub fn publish_daily_reports() {
+    pub fn enable_daily_reports() {
         tokio::spawn(async {
             info!("The daily report system is now enabled.");
 
