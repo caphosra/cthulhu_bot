@@ -1,5 +1,4 @@
 use anyhow::Result;
-use once_cell::sync::Lazy;
 use serenity::builder::{CreateCommand, CreateEmbed};
 use serenity::model::application::CommandInteraction;
 use serenity::prelude::{Context, Mutex};
@@ -16,42 +15,40 @@ struct Status<'l> {
 }
 
 /// A list of the statuses required.
-static STATUSES: Lazy<Vec<Status>> = Lazy::new(|| {
-    vec![
-        Status {
-            name: ":dagger: STR",
-            roll: "3d6",
-        },
-        Status {
-            name: ":umbrella: CON",
-            roll: "3d6",
-        },
-        Status {
-            name: ":heart: POW",
-            roll: "3d6",
-        },
-        Status {
-            name: ":dash: DEX",
-            roll: "3d6",
-        },
-        Status {
-            name: ":star: APP",
-            roll: "3d6",
-        },
-        Status {
-            name: ":elephant: SIZ",
-            roll: "2d6+6",
-        },
-        Status {
-            name: ":bulb: INT",
-            roll: "2d6+6",
-        },
-        Status {
-            name: ":books: EDU",
-            roll: "3d6+3",
-        },
-    ]
-});
+const STATUSES: [Status; 8] = [
+    Status {
+        name: ":dagger: STR",
+        roll: "3d6",
+    },
+    Status {
+        name: ":umbrella: CON",
+        roll: "3d6",
+    },
+    Status {
+        name: ":heart: POW",
+        roll: "3d6",
+    },
+    Status {
+        name: ":dash: DEX",
+        roll: "3d6",
+    },
+    Status {
+        name: ":star: APP",
+        roll: "3d6",
+    },
+    Status {
+        name: ":elephant: SIZ",
+        roll: "2d6+6",
+    },
+    Status {
+        name: ":bulb: INT",
+        roll: "2d6+6",
+    },
+    Status {
+        name: ":books: EDU",
+        roll: "3d6+3",
+    },
+];
 
 #[naming]
 #[db_required(false)]
