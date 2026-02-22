@@ -1,7 +1,7 @@
 #
 # Building step
 #
-FROM clux/muslrust:1.85.1-stable AS build
+FROM clux/muslrust:1.93.1-stable AS build
 
 ENV PKG_CONFIG_ALLOW_CROSS=1
 
