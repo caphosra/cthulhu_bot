@@ -4,7 +4,7 @@ use anyhow::Result;
 use rand::Rng;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
-use serenity::prelude::{Context, Mutex};
+use serenity::prelude::Context;
 
 use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
@@ -15,7 +15,6 @@ pub struct Op6Command;
 pub struct Op7Command;
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for Op6Command {
     fn create(&self) -> CreateCommand {
@@ -185,7 +184,6 @@ impl ToString for RollResult {
 }
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for Op7Command {
     fn create(&self) -> CreateCommand {

@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
-use serenity::prelude::{Context, Mutex};
+use serenity::prelude::Context;
 
 use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
@@ -177,7 +177,6 @@ impl SkillCommand {
 }
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for SkillCommand {
     fn create(&self) -> CreateCommand {
@@ -208,7 +207,6 @@ impl BotCommand for SkillCommand {
 }
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for Sk6Command {
     fn create(&self) -> CreateCommand {
@@ -236,7 +234,6 @@ impl BotCommand for Sk6Command {
 }
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for Sk7Command {
     fn create(&self) -> CreateCommand {
@@ -264,7 +261,6 @@ impl BotCommand for Sk7Command {
 }
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for SkDGCommand {
     fn create(&self) -> CreateCommand {
@@ -292,7 +288,6 @@ impl BotCommand for SkDGCommand {
 }
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for SkBRPCommand {
     fn create(&self) -> CreateCommand {

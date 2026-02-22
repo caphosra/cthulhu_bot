@@ -30,6 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          build-args: |
-            BOT_VER=${{ github.ref_name }}
           tags: ghcr.io/caphosra/cthulhu-bot:${{ github.ref_name }}
