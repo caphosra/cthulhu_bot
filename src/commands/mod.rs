@@ -7,16 +7,13 @@ use serenity::builder::{
 };
 use serenity::model::application::{Command, CommandInteraction};
 use serenity::model::colour::Colour;
-use serenity::prelude::{Context, Mutex};
+use serenity::prelude::Context;
 
 use crate::commands::choose::ChooseCommand;
 use crate::commands::create_sheet::CSCommand;
 use crate::commands::opposed::{Op6Command, Op7Command};
 use crate::commands::roll::RollCommand;
-use crate::commands::set::SetCommand;
 use crate::commands::skill::{Sk6Command, Sk7Command, SkBRPCommand, SkDGCommand, SkillCommand};
-use crate::commands::status::StatusCommand;
-use crate::database::SizedBotDatabase;
 use crate::logging::BotEventCounter;
 
 /// Represents a handled result of the command.
@@ -35,15 +32,11 @@ pub trait BotCommand {
     /// Gets a name of the command.
     fn name(&self) -> &str;
 
-    /// Returns whether the command depends on a database.
-    fn use_db(&self) -> bool;
-
     /// Executes the command.
     async fn execute(
         &self,
         ctx: &Context,
         interaction: &CommandInteraction,
-        data: &Mutex<SizedBotDatabase>,
     ) -> Result<CommandStatus>;
 }
 
@@ -60,8 +53,6 @@ static REGISTERED_COMMANDS: Lazy<Vec<Box<dyn BotCommand + Sync + Send>>> = Lazy:
         Box::new(SkDGCommand),
         Box::new(SkBRPCommand),
         Box::new(SkillCommand),
-        Box::new(SetCommand),
-        Box::new(StatusCommand),
     ]
 });
 
@@ -70,19 +61,13 @@ pub struct BotCommandManager;
 
 impl BotCommandManager {
     /// Registers all commands to Discord.
-    pub async fn register_all(ctx: &Context, db_available: bool) -> Result<()> {
+    pub async fn register_all(ctx: &Context) -> Result<()> {
         let commands = REGISTERED_COMMANDS
             .iter()
-            .filter_map(|command| {
-                if db_available || !command.use_db() {
-                    tokio::spawn(async move {
-                        info!("Registering /{}.", command.name());
-                    });
+            .map(|command| {
+                info!("Registering /{}.", command.name());
 
-                    Some(command.create())
-                } else {
-                    None
-                }
+                command.create()
             })
             .collect();
 
@@ -94,11 +79,7 @@ impl BotCommandManager {
     }
 
     /// Executes a command.
-    pub async fn run_command(
-        ctx: &Context,
-        interaction: &CommandInteraction,
-        data: &Mutex<SizedBotDatabase>,
-    ) -> Result<()> {
+    pub async fn run_command(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
         let mut command_executed = false;
         for command in REGISTERED_COMMANDS.iter() {
             let name = &interaction.data.name;
@@ -109,7 +90,7 @@ impl BotCommandManager {
                 }
                 command_executed = true;
 
-                let result = command.execute(ctx, interaction, data).await?;
+                let result = command.execute(ctx, interaction).await?;
 
                 BotEventCounter::increment(name).await;
 
@@ -231,6 +212,4 @@ pub mod choose;
 pub mod create_sheet;
 pub mod opposed;
 pub mod roll;
-pub mod set;
 pub mod skill;
-pub mod status;

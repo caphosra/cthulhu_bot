@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
-use serenity::prelude::{Context, Mutex};
+use serenity::prelude::Context;
 
 use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
@@ -9,7 +9,6 @@ use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, Send
 pub struct RollCommand;
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for RollCommand {
     fn create(&self) -> CreateCommand {

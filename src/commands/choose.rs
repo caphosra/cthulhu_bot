@@ -2,7 +2,7 @@ use anyhow::Result;
 use rand::Rng;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
-use serenity::prelude::{Context, Mutex};
+use serenity::prelude::Context;
 
 use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
@@ -10,7 +10,6 @@ use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 pub struct ChooseCommand;
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for ChooseCommand {
     fn create(&self) -> CreateCommand {

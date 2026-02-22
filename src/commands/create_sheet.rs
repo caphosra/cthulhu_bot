@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serenity::builder::{CreateCommand, CreateEmbed};
 use serenity::model::application::CommandInteraction;
-use serenity::prelude::{Context, Mutex};
+use serenity::prelude::Context;
 
 use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
@@ -51,7 +51,6 @@ const STATUSES: [Status; 8] = [
 ];
 
 #[naming]
-#[db_required(false)]
 #[serenity::async_trait]
 impl BotCommand for CSCommand {
     fn create(&self) -> CreateCommand {

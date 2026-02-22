@@ -16,25 +16,18 @@ This bot emulates dice rolling. It is tuned for CoC, but you can use this for ge
 
 ## Commands available
 
-- `<arg>` : An argument required.
-- `[arg]` : An argument not required.
-
-The bot hosted by the owner is DB-free. If you want to use not DB-free features, you should host this bot by yourself.
-
-|Command|DB-free|Description|
+|Command|Frequently used|Description|
 |:---|:---:|:---|
-|`/choose`|:white_check_mark:|Makes a random choice.|
-|`/cs`|:white_check_mark:|Creates a character sheet.|
-|`/op6`|:white_check_mark:|Does an opposed roll following the Call of Cthulhu 6th Edition.|
-|`/op7`|:white_check_mark:|Does an opposed roll following the Call of Cthulhu 7th Edition.|
-|`/roll`|:white_check_mark:|Rolls designated dices. Expressions supported by [d20](https://github.com/pholactery/d20) can be used.|
-|`/set`||Assigns a value to your parameter.|
-|`/skill`|:white_check_mark:|Does a skill roll. `/sk6` is the same.|
-|`/sk6`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 6th Edition.|
-|`/sk7`|:white_check_mark:|Does a skill roll following the Call of Cthulhu 7th Edition.|
-|`/skdg`|:white_check_mark:|Does a skill roll following the Delta Green.|
-|`/skbrp`|:white_check_mark:|Does a skill roll following the BRP 2023.|
-|`/status`||Displays your status.|
+|`/choose`||Makes a random choice.|
+|`/cs`|:star:|Creates a character sheet.|
+|`/op6`||Does an opposed roll following the Call of Cthulhu 6th Edition.|
+|`/op7`||Does an opposed roll following the Call of Cthulhu 7th Edition.|
+|`/roll`|:star:|Rolls designated dices. Expressions supported by [d20](https://github.com/pholactery/d20) can be used.|
+|`/skill`|:star:|Does a skill roll. Alias for `/sk6`.|
+|`/sk6`||Does a skill roll following the Call of Cthulhu 6th Edition.|
+|`/sk7`|:star:|Does a skill roll following the Call of Cthulhu 7th Edition.|
+|`/skdg`||Does a skill roll following the Delta Green.|
+|`/skbrp`||Does a skill roll following the BRP 2023.|
 
 ### Roll dices
 
