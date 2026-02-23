@@ -1,5 +1,4 @@
 use anyhow::Result;
-use d20::Roll;
 use log::{error, info};
 use once_cell::sync::Lazy;
 use serenity::builder::{
@@ -182,29 +181,6 @@ impl<'l> SendEmbed<'l> for CommandInteraction {
         )
         .await?;
         Ok(())
-    }
-}
-
-/// Provides the way to convert `Roll` into `String`.
-pub trait AsString {
-    /// Converts `Roll` into `String`.
-    fn as_string(&self) -> String;
-}
-
-impl AsString for Roll {
-    fn as_string(&self) -> String {
-        let mut out = String::new();
-
-        for i in 0..self.values.len() {
-            let ref val = self.values[i];
-            match val.0 {
-                d20::DieRollTerm::Modifier(_) => out += format!("{}", &val.0).as_str(),
-                d20::DieRollTerm::DieRoll { .. } => {
-                    out += format!("{}{:?}", &val.0, val.1).as_str();
-                }
-            }
-        }
-        out
     }
 }
 
