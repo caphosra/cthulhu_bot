@@ -88,48 +88,38 @@ impl BotCommand for Op6Command {
         let chance = 50 + (status1 - status2) * 5;
         let chance = chance.clamp(0, 100);
 
-        match d20::roll_dice("1d100") {
-            Ok(result) => {
-                let player1_won = result.total <= chance;
-                let player1_result_text = format!("{} ({} <= {})?", status1, result.total, chance);
-                let player2_result_text = format!("{} ({} > {})?", status2, result.total, chance);
+        let result = rand::thread_rng().gen_range(1..=100);
+        let player1_won = result <= chance;
+        let player1_result_text = format!("{} ({} <= {})?", status1, result, chance);
+        let player2_result_text = format!("{} ({} > {})?", status2, result, chance);
 
-                interaction
-                    .send_embed(
-                        ctx,
-                        CreateEmbed::new()
-                            .title(comment)
-                            .field(
-                                format!(
-                                    ":first_place: {}",
-                                    if player1_won { name1 } else { name2 }
-                                ),
-                                if player1_won {
-                                    &player1_result_text
-                                } else {
-                                    &player2_result_text
-                                },
-                                false,
-                            )
-                            .field(
-                                format!(
-                                    ":second_place: {}",
-                                    if player1_won { name2 } else { name1 }
-                                ),
-                                if player1_won {
-                                    &player2_result_text
-                                } else {
-                                    &player1_result_text
-                                },
-                                false,
-                            ),
+        interaction
+            .send_embed(
+                ctx,
+                CreateEmbed::new()
+                    .title(comment)
+                    .field(
+                        format!(":first_place: {}", if player1_won { name1 } else { name2 }),
+                        if player1_won {
+                            &player1_result_text
+                        } else {
+                            &player2_result_text
+                        },
+                        false,
                     )
-                    .await?;
+                    .field(
+                        format!(":second_place: {}", if player1_won { name2 } else { name1 }),
+                        if player1_won {
+                            &player2_result_text
+                        } else {
+                            &player1_result_text
+                        },
+                        false,
+                    ),
+            )
+            .await?;
 
-                Ok(CommandStatus::Ok)
-            }
-            Err(err) => Ok(CommandStatus::Err(err.to_string())),
-        }
+        Ok(CommandStatus::Ok)
     }
 }
 

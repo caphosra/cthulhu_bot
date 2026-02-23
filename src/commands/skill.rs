@@ -1,4 +1,5 @@
 use anyhow::Result;
+use rand::Rng;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
 use serenity::prelude::Context;
@@ -29,7 +30,7 @@ impl SkillCommand {
             .get_string_option("comment".to_string())
             .unwrap_or("a skill");
 
-        let (result, roll) = match d20::roll_dice("1d100").unwrap().total {
+        let (result, roll) = match rand::thread_rng().gen_range(1..=100) {
             result if (result == 1 && result <= chance) => (
                 ":star::crown::star: **Critical!!!**",
                 format!("1 <= {}", chance),
@@ -68,7 +69,7 @@ impl SkillCommand {
             .get_string_option("comment".to_string())
             .unwrap_or("a skill");
 
-        let (result, roll) = match d20::roll_dice("1d100").unwrap().total {
+        let (result, roll) = match rand::thread_rng().gen_range(1..=100) {
             result if (result == 1 && result <= chance) => (
                 ":star::crown::star: **Critical!!!**",
                 format!("1 <= {}", chance),
@@ -107,7 +108,7 @@ impl SkillCommand {
             .get_string_option("comment".to_string())
             .unwrap_or("a skill");
 
-        let (result, roll) = match d20::roll_dice("1d100").unwrap().total {
+        let (result, roll) = match rand::thread_rng().gen_range(1..=100) {
             result if (result == 1 && result <= chance) => (
                 ":star::crown::star: **Critical!!!**",
                 format!("1 <= {}", chance),
@@ -148,7 +149,7 @@ impl SkillCommand {
             .get_string_option("comment".to_string())
             .unwrap_or("a skill");
 
-        let (result, roll) = match d20::roll_dice("1d100").unwrap().total {
+        let (result, roll) = match rand::thread_rng().gen_range(1..=100) {
             result if result <= (chance - 1) / 20 + 1 => (
                 ":star::crown::star: **Critical!!!**",
                 format!("{} <= {}", result, chance),

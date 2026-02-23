@@ -1,9 +1,16 @@
 use anyhow::Result;
+use log::debug;
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateEmbed};
 use serenity::model::application::{CommandInteraction, CommandOptionType};
 use serenity::prelude::Context;
+use tyche::dice::roller::FastRand;
+use tyche::expr::Describe;
+use tyche::Expr;
 
-use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
+
+/// A maximum number of dices that can be rolled at once.
+const MAX_DICE_NUM: usize = 30;
 
 /// A command to roll dices.
 pub struct RollCommand;
@@ -48,8 +55,8 @@ impl BotCommand for RollCommand {
             .map(|comment| format!(" for {}", comment))
             .unwrap_or_default();
 
-        match d20::roll_dice(dice) {
-            Ok(result) => {
+        match RollCommand::evaluate_dice_expr(dice) {
+            Ok((evaluated, description)) => {
                 interaction
                     .send_embed(
                         ctx,
@@ -59,17 +66,39 @@ impl BotCommand for RollCommand {
                                 interaction.get_nickname(),
                                 comment
                             ))
-                            .field(
-                                format!(":game_die: {}", result.total),
-                                result.as_string(),
-                                false,
-                            ),
+                            .field(format!(":game_die: {}", evaluated), description, false),
                     )
                     .await?;
 
                 Ok(CommandStatus::Ok)
             }
-            Err(err) => Ok(CommandStatus::Err(err.to_string())),
+            Err(message) => {
+                debug!(
+                    "Failed to evaluate dice expression: {} (reason: {})",
+                    dice, message
+                );
+
+                Ok(CommandStatus::Err(message))
+            }
         }
+    }
+}
+
+impl RollCommand {
+    /// Evaluates a dice expression.
+    pub fn evaluate_dice_expr(expr: &str) -> Result<(i32, String), String> {
+        // Parse the expression.
+        let expr: Expr = expr
+            .parse()
+            .map_err(|err: tyche::parse::Error| err.to_string())?;
+
+        // Evaluate the expression.
+        let mut roller = FastRand::default();
+        let result = expr.eval(&mut roller).map_err(|err| err.to_string())?;
+
+        // Calculate the result.
+        let evaluated = result.calc().map_err(|err| err.to_string())?;
+
+        Ok((evaluated, result.describe(Some(MAX_DICE_NUM))))
     }
 }

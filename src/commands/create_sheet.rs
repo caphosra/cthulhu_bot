@@ -2,8 +2,11 @@ use anyhow::Result;
 use serenity::builder::{CreateCommand, CreateEmbed};
 use serenity::model::application::CommandInteraction;
 use serenity::prelude::Context;
+use tyche::dice::roller::FastRand;
+use tyche::expr::Describe;
+use tyche::Expr;
 
-use crate::commands::{AsString, BotCommand, CommandStatus, InteractionUtil, SendEmbed};
+use crate::commands::{BotCommand, CommandStatus, InteractionUtil, SendEmbed};
 
 /// A command that creates a character sheet.
 pub struct CSCommand;
@@ -66,12 +69,15 @@ impl BotCommand for CSCommand {
     ) -> Result<CommandStatus> {
         let author = interaction.get_nickname();
 
+        let mut roller = FastRand::default();
+
         let embed = CreateEmbed::new().title(format!("{}'s character", author));
         let embed = STATUSES.iter().fold(embed, |embed, status| {
-            let result = d20::roll_dice(status.roll).unwrap();
+            let expr: Expr = status.roll.parse().unwrap();
+            let result = expr.eval(&mut roller).unwrap();
             embed.field(
-                format!("{} {}", status.name, result.total),
-                result.as_string(),
+                format!("{} {}", status.name, result.calc().unwrap()),
+                result.describe(None),
                 true,
             )
         });
